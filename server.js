@@ -3,9 +3,10 @@ var oAuthGithub = require("./server/oauth-github");
 var MongoClient = require("mongodb").MongoClient;
 
 var port = process.env.PORT || 8080;
-var dbUri = process.env.DB_URI || "mongodb://test:test@ds027491.mongolab.com:27491/chat-grad-project";
-var oauthClientId = process.env.OAUTH_CLIENT_ID || "fa4a22095c46dfc1d832";
-var oauthSecret = process.env.OAUTH_SECRET || "4bbf1b48173c3cbc35917fad9f94ef2b584cbaa4";
+var dbUri = process.env.DB_URI || "mongodb://user1:Zuq$;ytN3)*_[u]*@ds129600.mlab.com:29600/chat-grad-project-chris";
+var oauthClientId = process.env.OAUTH_CLIENT_ID || "7780bf013aca5a98f980";
+var oauthSecret = process.env.OAUTH_SECRET || "01822d8e95ba9dc3c13aa243aa15cf52aced1eee";
+var middleware = [];
 
 MongoClient.connect(dbUri, function(err, db) {
     if (err) {
@@ -13,6 +14,24 @@ MongoClient.connect(dbUri, function(err, db) {
         return;
     }
     var githubAuthoriser = oAuthGithub(oauthClientId, oauthSecret);
-    server(port, db, githubAuthoriser);
+
+    if (process.env.NODE_ENV !== "production") {
+        var webpack = require("webpack");
+        var webpackDevMiddleware = require("webpack-dev-middleware");
+        var webpackHotMiddleware = require("webpack-hot-middleware");
+        var config = require("./webpack.deployment.config.js");
+        var compiler = webpack(config);
+
+        middleware.push(webpackDevMiddleware(compiler, {
+            noInfo: false,
+            publicPath: config.output.publicPath,
+            stats: {colors: true}
+        }));
+        middleware.push(webpackHotMiddleware(compiler, {
+            log: console.log
+        }));
+    }
+
+    server(port, db, githubAuthoriser, middleware);
     console.log("Server running on port " + port);
 });

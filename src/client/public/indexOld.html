@@ -4,9 +4,10 @@
         <meta charset="utf-8">
         <title>Chat</title>
         <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.4.1/angular.min.js"></script>
-        <script src="js/main.js"></script>
+        <script src="../app/main.js"></script>
     </head>
     <body ng-controller="ChatController">
+        <div id="app"></div>
         <a ng-show="!loggedIn" href="{{loginUri}}">Log in</a>
         <section ng-show="loggedIn">
             <p>Logged in as {{user.name}}.</p>

@@ -31,6 +31,23 @@ describe("server", function() {
     var githubAuthoriser;
     var serverInstance;
     var dbCollections;
+    var middleware = [];
+
+    var webpack = require("webpack");
+    var webpackDevMiddleware = require("webpack-dev-middleware");
+    var webpackHotMiddleware = require("webpack-hot-middleware");
+    var config = require("../webpack.deployment.config.js");
+    var compiler = webpack(config);
+
+    middleware.push(webpackDevMiddleware(compiler, {
+        noInfo: false,
+        publicPath: config.output.publicPath,
+        stats: {colors: true}
+    }));
+    middleware.push(webpackHotMiddleware(compiler, {
+        log: console.log
+    }));
+    this.timeout(20000);
     beforeEach(function() {
         cookieJar = request.jar();
         dbCollections = {
@@ -49,7 +66,8 @@ describe("server", function() {
             authorise: function() {},
             oAuthUri: "https://github.com/login/oauth/authorize?client_id=" + oauthClientId
         };
-        serverInstance = server(testPort, db, githubAuthoriser);
+
+        serverInstance = server(testPort, db, githubAuthoriser, middleware);
     });
     afterEach(function() {
         serverInstance.close();

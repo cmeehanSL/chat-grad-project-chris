@@ -3,11 +3,41 @@ module.exports = function(grunt) {
     grunt.loadNpmTasks("grunt-jscs");
     grunt.loadNpmTasks("grunt-mocha-test");
     grunt.loadNpmTasks("grunt-mocha-istanbul");
+    grunt.loadNpmTasks("grunt-webpack");
+    grunt.loadNpmTasks("grunt-contrib-watch");
 
     var files = ["Gruntfile.js", "server.js", "server/**/*.js", "test/**/*.js", "public/**/*.js"];
     var artifactsLocation = "build_artifacts";
+    var webpack = require("webpack");
+    var webpackConfig = require("./webpack.config.js");
 
     grunt.initConfig({
+        watch: {
+            options: {
+                livereload: true
+            },
+            app: {
+                files: ["src/client/app/**/*"],
+                tasks: ["webpack:build-dev"],
+                options: {
+                    spawn: false
+                }
+            },
+            express: {
+                options: {
+                    files: ["server/*"],
+                    tasks: ["express:dev"],
+                    options: {
+                        spawn: false
+                    }
+                }
+            }
+        },
+        express: {
+            options: {
+                port: 8080
+            }
+        },
         jshint: {
             all: files,
             options: {
@@ -26,10 +56,16 @@ module.exports = function(grunt) {
             test: {
                 src: ["test/**/*.js"]
             },
+            ci: {
+                src: ["test/**/*.js"],
+                options: {
+                    quiet: false
+                }
+            },
             options: {
                 coverageFolder: artifactsLocation,
                 reportFormats: ["none"],
-                print: "none"
+                print: "detail"
             }
         },
         "istanbul_report": {
@@ -73,4 +109,6 @@ module.exports = function(grunt) {
     grunt.registerTask("test", ["check", "mochaTest", "mocha_istanbul", "istanbul_report",
         "istanbul_check_coverage"]);
     grunt.registerTask("default", "test");
+    // grunt.registerTask("wpserver", ["webpack-dev-server:start"]);
+    // grunt.registerTask("dev", ["webpack:build-dev", "express:dev", "watch"]);
 };
