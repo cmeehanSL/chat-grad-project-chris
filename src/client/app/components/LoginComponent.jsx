@@ -1,6 +1,7 @@
 import React from "react";
-import {connect} from "react-redux"
-import { loginAttempt } from "../actions/loginActions"
+import {connect} from "react-redux";
+import { loginAttempt } from "../actions/loginActions";
+import Layout from "./Layout.jsx";
 
 @connect((store) => {
 
