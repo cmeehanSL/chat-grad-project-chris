@@ -15,10 +15,17 @@ export default function reducer(
         }
         case "LOGIN_SUCCESSFUL": {
 
-            return state;
+            return {
+                ...state,
+                loggedIn: true,
+                attemptingLogin: false
+            }
         }
         case "LOGIN_FAILED": {
-
+            return {
+                ...state,
+                attemptingLogin: false
+            }
         }
         case "RECEIVED_LOGIN_URI": {
 

@@ -3,6 +3,12 @@ export default function reducer(
     action
 ) {
     switch(action.type) {
+        case "LOGIN_SUCCESSFUL": {
+            return {
+                ...state,
+                activeUser: action.payload
+            }
+        }
         case "START_CHAT": {
             return {
                 ...state,
