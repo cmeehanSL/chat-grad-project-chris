@@ -6,7 +6,7 @@ export function loginAttempt() {
         axios.get("/api/user")
             .then((response) => {
                 dispatch({type: "LOGIN_SUCCESSFUL", payload: response.data});
-                axios.get("/api/oauth/url").then((reponse) => {
+                axios.get("/api/users").then((reponse) => {
                     dispatch({type: "RECEIVED_USERS", payload: response.data});
                 })
             })
