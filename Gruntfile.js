@@ -10,7 +10,7 @@ module.exports = function(grunt) {
     var files = ["Gruntfile.js", "server.js", "server/**/*.js", "test/**/*.js", "public/**/*.js"];
     var artifactsLocation = "build_artifacts";
     var webpack = require("webpack");
-    var webpackConfig = require("./webpack.config.js");
+    var webpackConfig = require("./webpack.development.config.js");
 
     grunt.initConfig({
         watch: {
@@ -31,13 +31,6 @@ module.exports = function(grunt) {
                     options: {
                         spawn: false
                     }
-                }
-            }
-        },
-        sass: {
-            dist: {
-                files: {
-                    'src/client/public/scss/main.scss': 'main.css'
                 }
             }
         },
@@ -117,7 +110,6 @@ module.exports = function(grunt) {
     grunt.registerTask("test", ["check", "mochaTest", "mocha_istanbul", "istanbul_report",
         "istanbul_check_coverage"]);
     grunt.registerTask("default", "test");
-    grunt.registerTask("sass", "sass:dist");
     // grunt.registerTask("wpserver", ["webpack-dev-server:start"]);
     // grunt.registerTask("dev", ["webpack:build-dev", "express:dev", "watch"]);
 };

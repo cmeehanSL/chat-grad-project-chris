@@ -19,7 +19,7 @@ MongoClient.connect(dbUri, function(err, db) {
         var webpack = require("webpack");
         var webpackDevMiddleware = require("webpack-dev-middleware");
         var webpackHotMiddleware = require("webpack-hot-middleware");
-        var config = require("./webpack.deployment.config.js");
+        var config = require("./webpack.development.config.js");
         var compiler = webpack(config);
 
         middleware.push(webpackDevMiddleware(compiler, {

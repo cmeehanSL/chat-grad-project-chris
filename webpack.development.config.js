@@ -39,17 +39,7 @@ var config = {
             }
         ]
     },
-    plugins: [
-        new ExtractTextPlugin("./main.css"),
-        new OptimizeCssAssestsPlugin(),
-        new webpack.optimize.UglifyJsPlugin(
-            {
-                minimize: true,
-                compress: {
-                    warnings: false
-                }
-            })
-        ]
+    plugins: [new ExtractTextPlugin("./main.css")]
 };
 
 module.exports = config;
