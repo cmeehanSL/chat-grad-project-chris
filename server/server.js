@@ -63,12 +63,14 @@ module.exports = function(port, db, githubAuthoriser, middleware) {
     });
 
     app.get("/api/user", function(req, res) {
+        console.log("get api user");
         users.findOne({
             _id: req.session.user
         }, function(err, user) {
             if (!err) {
                 res.json(user);
             } else {
+                console.log("sending a 500");
                 res.sendStatus(500);
             }
         });

@@ -2,7 +2,7 @@ export default function reducer(
     state = {
         loggedIn: false,
         attemptingLogin: false,
-        loginUri: '#hi'
+        loginUri: '#'
     },
     action
 ) {

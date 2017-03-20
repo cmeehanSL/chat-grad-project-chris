@@ -14,7 +14,7 @@ import { loginAttempt } from "../actions/loginActions"
 export default class LoginComponent extends React.Component {
 
     componentWillMount() {
-        this.props.dispatch(loginAttempt())
+        this.props.dispatch(loginAttempt());
     }
 
     render() {

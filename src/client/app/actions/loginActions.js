@@ -3,7 +3,7 @@ import axios from "axios";
 export function loginAttempt() {
     return function(dispatch){
         dispatch({type: "LOGIN_ATTEMPT"});
-        axios.get("api/user")
+        axios.get("/api/user")
             .then((response) => {
                 dispatch({type: "LOGIN_SUCCESSFUL", payload: response.data});
                 axios.get("/api/oauth/url").then((reponse) => {
