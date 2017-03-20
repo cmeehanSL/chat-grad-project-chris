@@ -20,7 +20,7 @@ export default class LoginComponent extends React.Component {
     render() {
         // if not logged in render the button with the link
         return (
-            <button href={this.props.loginUri}>Log In</button>
+            <button class="btn btn-primary"><a href={this.props.loginUri}>Log In</a></button>
         );
         // if logged in then render the list of the users
     }
