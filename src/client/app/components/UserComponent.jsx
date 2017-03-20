@@ -8,7 +8,7 @@ class UserComponent extends React.Component {
 
     render() {
         return(
-            <span><h3>{this.props.name}</h3><img src={this.props.profilePic}></img></span>
+            <span><h3>{this.props.username}</h3><img src={this.props.avatar}></img></span>
         )
     }
 }

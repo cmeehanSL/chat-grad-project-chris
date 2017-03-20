@@ -1,5 +1,7 @@
 export default function reducer(
-    state = {},
+    state = {
+        activeUser: null
+    },
     action
 ) {
     switch(action.type) {
