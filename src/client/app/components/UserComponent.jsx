@@ -7,8 +7,11 @@ class UserComponent extends React.Component {
     }
 
     render() {
+        var user = this.props.user;
         return(
-            <span><h3>{this.props.username}</h3><img src={this.props.avatar}></img></span>
+            <div class="well">
+                <span class="userTab"><h4>{user._id}</h4><img class="avatarImg" src={user.avatarUrl}></img></span>
+            </div>
         )
     }
 }

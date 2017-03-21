@@ -6,8 +6,9 @@ export function loginAttempt() {
         axios.get("/api/user")
             .then((response) => {
                 dispatch({type: "LOGIN_SUCCESSFUL", payload: response.data});
-                axios.get("/api/users").then((reponse) => {
-                    dispatch({type: "RECEIVED_USERS", payload: response.data});
+                axios.get("/api/users").then((usersReponse) => {
+                    console.log("response data is " + usersReponse.data.friendList[0].id);
+                    dispatch({type: "RECEIVED_USERS", payload: usersReponse.data});
                 })
             })
             .catch((err) => {

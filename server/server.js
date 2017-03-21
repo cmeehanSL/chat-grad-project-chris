@@ -79,13 +79,20 @@ module.exports = function(port, db, githubAuthoriser, middleware) {
     app.get("/api/users", function(req, res) {
         users.find().toArray(function(err, docs) {
             if (!err) {
-                res.json(docs.map(function(user) {
+                var friendList = docs.map(function(user) {
                     return {
                         id: user._id,
                         name: user.name,
                         avatarUrl: user.avatarUrl
                     };
-                }));
+                }).filter(function(user) {
+                    return user.id !== req.session.user;
+                });
+                res.json(
+                    {
+                        friendList: friendList
+                    }
+                );
             } else {
                 res.sendStatus(500);
             }

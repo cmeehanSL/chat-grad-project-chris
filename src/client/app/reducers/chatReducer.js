@@ -1,10 +1,18 @@
 export default function reducer(
     state = {
         sendingMessage: false,
-        chatLog: []
+        chatLog: [],
+        friendList: []
     },
     action) {
     switch(action.type) {
+        case "RECEIVED_USERS": {
+            var friendList = action.payload.friendList;
+            return {
+                ...state,
+                friendList: friendList
+            }
+        }
         case "SEND_MESSAGE": {
             var newMessage = {
                 text: action.payload,

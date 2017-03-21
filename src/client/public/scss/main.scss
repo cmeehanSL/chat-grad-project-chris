@@ -1,9 +1,59 @@
-  h1 {
-    color: white;
-    a {
-      width: 116px;
-      height: 72px;
-      display: block;
-      text-decoration: none;
-    }
+#mainWindow {
+    display: flex;
+}
+
+  #contactBar{
+      align-self: stretch;
+      height: 100%;
+      width: 400px;
+      background-color: orange;
   }
+
+  #chatWindow{
+      align-self: stretch;
+      display: flex;
+      background-color: green;
+      width: 100%;
+      justify-content: center;
+  }
+
+  #chatArea {
+      width: 80%;
+      height: 30%;
+      background-color: white;
+      align-self: flex-end;
+  }
+
+
+  .userTab {
+      height: 90px;
+      h4{
+          display: inline;
+          padding: 10px;
+      }
+      .avatarImg {
+          width: 80px;
+          height: 80px;
+          vertical-align: middle;
+      }
+  }
+
+.friendTab {
+    h5 {
+        display: inline;
+        padding: 10px;
+    }
+    .avatarImg {
+        width: 60px;
+        height: 60px;
+    }
+}
+
+#friendList {
+    list-style-type: none;
+    padding: 0;
+    li {
+        cursor: pointer;
+        .well{margin-bottom: 5px;}
+    }
+}
