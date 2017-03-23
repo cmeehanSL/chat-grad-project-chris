@@ -1,5 +1,6 @@
 #mainWindow {
     display: flex;
+    flex-flow: row;
 }
 
   #contactBar{
@@ -10,18 +11,29 @@
   }
 
   #chatWindow{
-      align-self: stretch;
+      flex-grow: 1;
+    //   align-self: stretch;
       display: flex;
       background-color: green;
-      width: 100%;
-      justify-content: center;
+      flex-flow: column;
+    //   width: 100%;
   }
 
-  #chatArea {
-      width: 80%;
-      height: 30%;
+  #messageHistory {
+      height:70%;
+  }
+
+  #sendArea {
+    //   width: 100%;
+      flex-grow: 1;
+      display: flex;
+      flex-flow: column-reverse;
       background-color: white;
-      align-self: flex-end;
+    //   align-self: flex-end;
+  }
+
+  #messageForm {
+      margin: 0;
   }
 
 
@@ -55,5 +67,21 @@
     li {
         cursor: pointer;
         .well{margin-bottom: 5px;}
+    }
+}
+
+ .chatHeader {
+    width: 30%;
+}
+
+.friendHeaderTab {
+    h3 {
+        display: inline;
+        padding: 20px;
+    }
+    .avatarImg{
+        width: 150px;
+        height:150px;
+        vertical-align: middle;
     }
 }

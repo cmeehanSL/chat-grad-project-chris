@@ -1,3 +1,6 @@
+// use to modify info about the user etc
+// such as change the name ???
+
 export default function reducer(
     state = {
         activeUser: null

@@ -1,16 +1,41 @@
 export default function reducer(
     state = {
         sendingMessage: false,
-        chatLog: [],
-        friendList: []
+        activeChats: [],
+        // friendList: [],
+        currentConversation: {
+            chatId: null
+        } // will be chatId and participant/s
     },
     action) {
     switch(action.type) {
-        case "RECEIVED_USERS": {
-            var friendList = action.payload.friendList;
+        case "OPENING_CONVERSATION": {
+            console.log("opening conversation with friend " + action.payload);
             return {
                 ...state,
-                friendList: friendList
+                currentConversation: {
+                    ...state.currentConversation,
+                    participants: action.payload
+                }
+            }
+        }
+        case "RECEIVED_CURRENT_CONVERSATION": {
+            return {
+                ...state,
+                currentConversation: {
+                    ...state.currentConversation,
+                    chatId: action.payload.chatId,
+                    messages: action.payload.messages
+                }
+            }
+        }
+        case "CREATED_NEW_CONVERSATION": {
+            return {
+                ...state,
+                currentConversation: {
+                    ...state.currentConversation,
+                    chatId: action.payload
+                }
             }
         }
         case "SEND_MESSAGE": {
