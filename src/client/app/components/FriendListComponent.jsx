@@ -12,7 +12,7 @@ export default class HomeComponent extends React.Component {
         console.log("associativeFriendList is " + friends);
         var friendsArray = Object.keys(friends).map(function(val) {return friends[val]});
         // var friendsArray = toArray()
-        var openConversation = this.props.openConversation;
+        var actions = this.props.actions;
         console.log("friends is " + friends);
         console.log("friends array is " + friends);
         return (
@@ -20,7 +20,7 @@ export default class HomeComponent extends React.Component {
                 {friendsArray.map(function(friend, key) {
                     return (
                         <li key={key}>
-                            <FriendComponent openConversation={openConversation} friend={friend} key={key}/>
+                            <FriendComponent actions={actions} friend={friend} key={key}/>
                         </li>
                     )
                 })}

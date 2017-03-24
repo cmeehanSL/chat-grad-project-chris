@@ -1,6 +1,7 @@
 export default function reducer(
     state = {
         // sendingMessage: false,
+        activeUserId: null,
         userChats: [],
         friendList: [],
         associativeFriendList: {}
@@ -8,6 +9,12 @@ export default function reducer(
     },
     action) {
     switch(action.type) {
+        case "LOGIN_SUCCESSFUL": {
+            return {
+                ...state,
+                activeUserId: action.payload._id
+            }
+        }
         // case "OPENING_CONVERSATION": {
         //     console.log("opening conversation with friend id " + action.payload);
         //     return {
@@ -18,6 +25,24 @@ export default function reducer(
         //         }
         //     }
         // }
+        case "CREATED_NEW_CONVERSATION": {
+            // break;
+            var chatId = action.payload._id;
+            var participants = action.payload.participants;
+            var userId = state.activeUserId;
+            if(participants.length == 2) {
+                var friendId = (participants[0] !== userId) ? participants[0] : participants[1];
+                var associativeFriendList = JSON.parse(JSON.stringify(state.associativeFriendList));
+                console.log("friend id is " + friendId);
+                console.log("the associativeFriendList is " + associativeFriendList);
+                var friend = associativeFriendList[friendId];
+                friend.chatId = chatId;
+                return{
+                    ...state,
+                    associativeFriendList: associativeFriendList
+                }
+            }
+        }
         case "RECEIVED_USERS": {
             var friendList = action.payload;
             var associativeFriendList = {};
@@ -36,12 +61,15 @@ export default function reducer(
         }
         case "RECEIVED_CHATS": {
             console.log("received userchat object of " + action.payload);
+            var userId = state.activeUserId;
             var userChats = action.payload.chats;
-            // populate the assoicative friend list chat IDs
+            var associativeFriendList = JSON.parse(JSON.stringify(state.associativeFriendList));
+                        // populate the assoicative friend list chat IDs
             userChats.forEach(function(chat) {
-                if(chat.participants.length == 1) {
-                    var friendId = chat.participants[0];
-                    associativeFriendList[friendId].chatId = chat.id;
+                if(chat.participants.length == 2) {
+                    var friendId = (chat.participants[0] !== userId) ? chat.participants[0] : chat.participants[1];
+
+                    associativeFriendList[friendId].chatId = chat.chatId;
                 }
             });
             // TODO ALSO add the actual contact details (taken from the associative
@@ -49,7 +77,8 @@ export default function reducer(
             // of chat components)
             return {
                 ...state,
-                userChats: userChats
+                userChats: userChats,
+                associativeFriendList: associativeFriendList
             }
         }
         // case "RECEIVED_CURRENT_CONVERSATION": {
@@ -62,15 +91,16 @@ export default function reducer(
         //         }
         //     }
         // }
-        case "CREATED_NEW_CONVERSATION": {
-            return {
-                ...state,
-                currentConversation: {
-                    ...state.currentConversation,
-                    chatId: action.payload
-                }
-            }
-        }
+        
     }
     return state;
+}
+
+function clone(obj) {
+    if (null == obj || "object" != typeof obj) return obj;
+    var copy = obj.constructor();
+    for (var attr in obj) {
+        if (obj.hasOwnProperty(attr)) copy[attr] = clone(obj[attr]);
+    }
+    return copy;
 }

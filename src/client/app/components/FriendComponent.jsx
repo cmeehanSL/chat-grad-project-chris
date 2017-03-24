@@ -11,11 +11,13 @@ export default class HomeComponent extends React.Component {
 
     makeActiveChat() {
         var friend = this.props.friend;
-        var openConversation = this.props.openConversation;
+        var actions = this.props.actions;
+        var openConversation = actions.openConversation;
+        var fetchConversation = actions.fetchConversation;
         openConversation([friend]);
 
         if (friend.chatId != null) {
-            fetchMessages(chatId);
+            fetchConversation(friend.chatId);
         }
     }
 

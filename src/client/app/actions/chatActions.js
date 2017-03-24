@@ -7,21 +7,37 @@ export function openConversation(participants) {
     }
 }
 
-export function fetchMessages(chatId) {
+export function fetchConversation(chatId) {
     return function(dispatch) {
         dispatch({type: "FETCHING_CONVERSATION"});
-        axios.get("/api/chat" + chatId).then(function(chatResponse) {
-            dispatch({type: "RECEIVED_CURRENT_CONVERSATION", payload: chatResponse.messages});
+        axios.get("/api/chat/" + chatId).then(function(chatResponse) {
+            // dispatch({type: "RECEIVED_CURRENT_CONVERSATION", payload: chatResponse.data});
         })
         .catch()
     }
 }
 
 
-export function createNewConversation() {
+export function createNewConversation(otherParticipants) {
     return function(dispatch) {
         dispatch({type: "CREATING_NEW_CONVERSATION"});
-
+        axios({
+            method: "POST",
+            url: "/api/chat",
+            headers: {
+                "Content-type": "application/json"
+            },
+            data: {
+                otherParticipants: otherParticipants
+            }
+        }).then(function(newChatResponse) {
+            dispatch({type: "CREATED_NEW_CONVERSATION", payload: newChatResponse.data});
+            dispatch({type: "RECEIVED_CURRENT_CONVERSATION", payload: newChatResponse.data});
+            // axios.get("/api/user-chats").then( (userChats) => {
+            //     console.log("received userChats object of " + userChats.data);
+            //     dispatch({type: "RECEIVED_CHATS", payload: userChats.data});
+            // });
+        });
     }
 }
 

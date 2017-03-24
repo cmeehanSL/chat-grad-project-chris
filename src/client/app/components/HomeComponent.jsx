@@ -34,7 +34,7 @@ export default class HomeComponent extends React.Component {
             <div id="mainWindow">
                 <div id="contactBar">
                     <UserComponent user={activeUser} />
-                    <FriendListComponent openConversation={actions.openConversation} friendList={associativeFriendList} />
+                    <FriendListComponent actions={actions} friendList={associativeFriendList} />
                 </div>
                 <div id="chatWindow">
                     <div id="messageHistory">

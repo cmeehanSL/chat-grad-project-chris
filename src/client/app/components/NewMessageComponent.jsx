@@ -13,13 +13,14 @@ export default class HomeComponent extends React.Component {
 
         event.preventDefault();
         console.log("hi you've tried to send a message");
-        // var currentConversation = this.props.currentConversation;
-        // var participants = currentConversation.participants;
+        var currentConversation = this.props.currentConversation;
+        var participants = currentConversation.participants;
         if (this.props.currentConversation.chatId !== null) {
             sendMessage("test message");
         }
         else {
-            this.props.createNewConversation();
+            this.props.createNewConversation(participants);
+
             this.props.sendMessage("test message");
         }
     }

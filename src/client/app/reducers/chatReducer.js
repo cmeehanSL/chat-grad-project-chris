@@ -20,23 +20,27 @@ export default function reducer(
             }
         }
         case "RECEIVED_CURRENT_CONVERSATION": {
+            // To make the current conversation info match the correct details
+            var returnedChat = action.payload;
             return {
                 ...state,
                 currentConversation: {
                     ...state.currentConversation,
-                    chatId: action.payload.chatId,
-                    messages: action.payload.messages
+                    chatId: returnedChat._id,
+                    messages: returnedChat.messages
                 }
             }
         }
         case "CREATED_NEW_CONVERSATION": {
-            return {
-                ...state,
-                currentConversation: {
-                    ...state.currentConversation,
-                    chatId: action.payload
-                }
-            }
+            break;
+
+            // return {
+            //     ...state,
+            //     currentConversation: {
+            //         ...state.currentConversation,
+            //         chatId: action.payload
+            //     }
+            // }
         }
         case "SEND_MESSAGE": {
             var newMessage = {
