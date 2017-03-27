@@ -5,7 +5,7 @@ import {bindActionCreators} from "redux";
 
 import UserComponent from "./UserComponent.jsx";
 import FriendListComponent from "./FriendListComponent.jsx";
-import FriendHeadComponent from "./FriendHeadComponent.jsx";
+import ConversationComponent from "./ConversationComponent.jsx";
 import NewMessageComponent from "./NewMessageComponent.jsx";
 
 function mapStateToProps(state) {
@@ -28,20 +28,22 @@ export default class HomeComponent extends React.Component {
         console.log("currentConversation in HomeComponent is " + this.props.currentConversation);
         console.log("friends list in HomeComponent is " + this.props.friendList);
         const { activeUser, associativeFriendList, currentConversation, actions } = this.props;
-        var inConversation = (this.props.currentConversation.participants !== undefined);
+        var inConversation = (this.props.currentConversation.participants !== null);
         console.log("in conversation is "+ inConversation);
         return (
             <div id="mainWindow">
                 <div id="contactBar">
-                    <UserComponent user={activeUser} />
+                    <UserComponent closeConversation={actions.closeConversation} user={activeUser} />
                     <FriendListComponent actions={actions} friendList={associativeFriendList} />
                 </div>
                 <div id="chatWindow">
-                    <div id="messageHistory">
-                        {inConversation ? <FriendHeadComponent friends={currentConversation.participants}/> : null}
+                    &nbsp;
+                    <div>
+                        {inConversation ? <ConversationComponent activeUser={activeUser} currentConversation={currentConversation}/> : null}
                     </div>
+
                     <div id="sendArea">
-                    <NewMessageComponent currentConversation={currentConversation} sendMessage={actions.sendMessage} createNewConversation={actions.createNewConversation}/>
+                        {inConversation ? <NewMessageComponent currentConversation={currentConversation} sendMessage={actions.sendMessage} createNewConversation={actions.createNewConversation}/> : null}
                     </div>
                 </div>
             </div>

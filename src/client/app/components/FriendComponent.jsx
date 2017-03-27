@@ -14,10 +14,13 @@ export default class HomeComponent extends React.Component {
         var actions = this.props.actions;
         var openConversation = actions.openConversation;
         var fetchConversation = actions.fetchConversation;
-        openConversation([friend]);
+        openConversation([friend], friend.chatId);
 
         if (friend.chatId != null) {
             fetchConversation(friend.chatId);
+        }
+        else {
+            //set the current convo chat id to null
         }
     }
 

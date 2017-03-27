@@ -33,8 +33,7 @@ export default function reducer(
             if(participants.length == 2) {
                 var friendId = (participants[0] !== userId) ? participants[0] : participants[1];
                 var associativeFriendList = JSON.parse(JSON.stringify(state.associativeFriendList));
-                console.log("friend id is " + friendId);
-                console.log("the associativeFriendList is " + associativeFriendList);
+                console.log("copied associativeFriendList and adding chatId " + chatId + " to friend: " + friendId);
                 var friend = associativeFriendList[friendId];
                 friend.chatId = chatId;
                 return{
@@ -91,7 +90,7 @@ export default function reducer(
         //         }
         //     }
         // }
-        
+
     }
     return state;
 }

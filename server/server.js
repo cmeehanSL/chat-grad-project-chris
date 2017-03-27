@@ -1,6 +1,7 @@
 var express = require("express");
 var cookieParser = require("cookie-parser");
 var bodyParser = require("body-parser");
+var ObjectID = require("mongodb").ObjectID;
 
 module.exports = function(port, db, githubAuthoriser, middleware) {
     var app = express();
@@ -91,18 +92,16 @@ module.exports = function(port, db, githubAuthoriser, middleware) {
         }
     });
 
-    function getCurrentUser() {
-
-        var currentUser;
-        users.findOne({
-            _id: req.session.user
-        }, function(err, user) {
-            currentUser = user;
-            return currentUser;
-        });
-
-
-    }
+    // function getCurrentUser() {
+    //
+    //     var currentUser;
+    //     users.findOne({
+    //         _id: req.session.user
+    //     }, function(err, user) {
+    //         currentUser = user;
+    //         return currentUser;
+    //     });
+    // }
 
     app.post("/api/chat", function(req, res) {
         var activeUserId = req.session.user;
@@ -118,8 +117,8 @@ module.exports = function(port, db, githubAuthoriser, middleware) {
 
         // Create a new Chat
         var newChat = {
-            messages: [],
-            participants: participantIds
+            participants: participantIds,
+            messages: []
         };
 
         // Add it to the database of chats
@@ -137,7 +136,7 @@ module.exports = function(port, db, githubAuthoriser, middleware) {
                 userChats.update(
                     {userId: userChatList.userId},
                     {"$set": {"chats": newChats}}
-                )
+                );
                 console.log("should have updated the list");
 
                 console.log("currently on userChatList where the id is " + userChatList.userId);
@@ -157,16 +156,46 @@ module.exports = function(port, db, githubAuthoriser, middleware) {
 
     });
 
+    app.post("/api/chat/:id", function(req, res) {
+        console.log("received request to add message to chat id of " + req.params.id);
+        var targetChatId = req.params.id;
+        conversations.findOne({_id: ObjectID(targetChatId)}, function(err, chat) {
+            if(!err) {
+                console.log("found chat");
+                console.log("chat is " + chat);
+                console.log("chat contains " + Object.keys(chat));
+                var newMessage = {
+                    sender: req.session.user,
+                    content: req.body.content
+                }
+
+                var newMessages = chat.messages.concat(newMessage);
+                conversations.update(
+                    {_id: ObjectID(targetChatId)},
+                    {"$set": {"messages": newMessages}}
+                );
+                console.log("should have added a new message to the chat")
+                res.json(newMessage);
+            }
+            else {
+                res.sendStatus(404);
+            }
+        })
+
+    })
+
     app.get("/api/chat/:id", function(req, res) {
         console.log("received request for chat id of " + req.params.id);
         var targetChatId = req.params.id;
-        conversations.find().forEach(function(convo) {
-            console.log("current convo has id of " + convo._id);
-            console.log("does this equal ?: " + (convo._id == targetChatId));
-        });
-        conversations.findOne({_id: targetChatId}, function(err, chat) {
-            if(!err) {
+        conversations.find().forEach(function(item) {
+            console.log("current chat id is " + item._id);
+            console.log("is this equal to " + targetChatId + "? + " + (targetChatId === item._id));
+        })
+        conversations.findOne({"_id" : ObjectID(targetChatId)}, function(err, chat) {
+            if(chat) {
                 console.log("foundChat ");
+                console.log("chat is " + chat);
+                // console.log("chat contains " + Object.keys(chat));
                 res.json(chat);
             }
             else {

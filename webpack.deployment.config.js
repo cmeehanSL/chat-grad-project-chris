@@ -6,7 +6,7 @@ var OptimizeCssAssestsPlugin = require("optimize-css-assets-webpack-plugin");
 var BUILD_DIR = path.resolve(__dirname, "src/client/public/build");
 var APP_DIR = path.resolve(__dirname, "src/client/app");
 var PUBLIC_DIR = path.resolve(__dirname, "src/client/public/scss");
-process.noDepracation = true;
+process.noDeprecation = true;
 
 var config = {
     entry: APP_DIR + "/index.jsx",

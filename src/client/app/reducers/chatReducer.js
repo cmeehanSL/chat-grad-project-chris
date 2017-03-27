@@ -1,21 +1,36 @@
 export default function reducer(
     state = {
         sendingMessage: false,
-        activeChats: [],
         // friendList: [],
         currentConversation: {
-            chatId: null
+            chatId: null,
+            messages: [],
+            participants: null
         } // will be chatId and participant/s
     },
     action) {
     switch(action.type) {
         case "OPENING_CONVERSATION": {
-            console.log("opening conversation with friend " + action.payload);
+            var chatId = action.payload.chatId;
+            var participants = action.payload.participants;
+            console.log("opening conversation with friend/s " + participants);
+            console.log("and chatId: " + chatId);
             return {
                 ...state,
                 currentConversation: {
                     ...state.currentConversation,
-                    participants: action.payload
+                    chatId: chatId,
+                    participants: participants
+                }
+            }
+        }
+        case "CLOSE_CURRENT_CONVERSATION": {
+            return {
+                ...state,
+                currentConversation: {
+                    chatId: null,
+                    messages: [],
+                    participants: null
                 }
             }
         }
@@ -42,15 +57,16 @@ export default function reducer(
             //     }
             // }
         }
-        case "SEND_MESSAGE": {
-            var newMessage = {
-                text: action.payload,
-                type: "sent"
-            }
-            var newChatLog = state.chatLog.concat(newMessage);
+        case "SENT_MESSAGE": {
+            var newMessage = action.payload;
+            var oldMessageList = state.currentConversation.messages;
+            var newMessageList = oldMessageList.concat(newMessage);
             return {
                 ...state,
-                chatLog: newChatLog
+                currentConversation: {
+                    ...state.currentConversation,
+                    messages: newMessageList
+                }
             }
         }
 

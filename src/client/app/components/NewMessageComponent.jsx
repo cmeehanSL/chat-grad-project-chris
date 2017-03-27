@@ -10,18 +10,17 @@ export default class HomeComponent extends React.Component {
     }
 
     sendNewMessage(event) {
-
         event.preventDefault();
+        var message = this.refs["messageInput"].value;
+        this.refs["messageInput"].value = "";
+
         console.log("hi you've tried to send a message");
         var currentConversation = this.props.currentConversation;
-        var participants = currentConversation.participants;
-        if (this.props.currentConversation.chatId !== null) {
-            sendMessage("test message");
+        if (currentConversation.chatId !== null) {
+            this.props.sendMessage(currentConversation.chatId, message);
         }
         else {
-            this.props.createNewConversation(participants);
-
-            this.props.sendMessage("test message");
+            this.props.createNewConversation(currentConversation.participants, message);
         }
     }
 
@@ -32,7 +31,7 @@ export default class HomeComponent extends React.Component {
         return (
             <form onSubmit={this.sendNewMessage} class="well" id="messageForm">
                 <div class="input-group">
-                    <input type="text" class="form-control" placeholder="New Message"></input>
+                    <input ref="messageInput" type="text" class="form-control" placeholder="New Message"></input>
                     <span class="input-group-btn">
                       <button class="btn btn-default" id="sendButton" type="submit">Send</button>
                     </span>

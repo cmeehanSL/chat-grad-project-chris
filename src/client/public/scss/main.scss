@@ -7,6 +7,7 @@
       align-self: stretch;
       height: 100%;
       width: 400px;
+      min-width: 400px;
       background-color: orange;
   }
 
@@ -16,15 +17,31 @@
       display: flex;
       background-color: green;
       flex-flow: column;
+      height: 100%;
     //   width: 100%;
+  }
+
+  #messageArea {
+      height:90%;
+      display: flex;
+      flex-flow: column;
   }
 
   #messageHistory {
-      height:70%;
+      flex-grow: 1;
+      overflow-y: scroll;
+  }
+
+  #userArea {
+      cursor: pointer;
+  }
+
+  #conversationContainer {
+      background-color: green;
   }
 
   #sendArea {
-    //   width: 100%;
+    //   max-width: 100%;
       flex-grow: 1;
       display: flex;
       flex-flow: column-reverse;
@@ -33,7 +50,10 @@
   }
 
   #messageForm {
-      margin: 0;
+      margin: auto;
+      width: 100%;
+      display: inline;
+    //   width: 80%;
   }
 
 
@@ -72,6 +92,8 @@
 
  .chatHeader {
     width: 30%;
+    height: 200px;
+    min-height: 200px;
 }
 
 .friendHeaderTab {
