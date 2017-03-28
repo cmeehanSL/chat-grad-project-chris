@@ -1,19 +1,26 @@
-import React from 'react'
+import React from "react"
 
 class UserComponent extends React.Component {
 
     constructor(props) {
         super(props);
+        this.handleCloseConveration = this.handleCloseConveration.bind(this);
     }
 
+    handleCloseConveration() {
+        this.props.closeConversation();
+    }
 
     render() {
         var user = this.props.user;
-        return(
-            <div id="userArea" class="well" onClick={this.props.closeConversation}>
-                <span class="userTab"><h4>{user._id}</h4><img class="avatarImg" src={user.avatarUrl}></img></span>
+        return (
+            <div id="userArea" className="well" onClick={this.props.handleCloseConveration}>
+                <span className="userTab"><h4>{user._id}</h4><img className="avatarImg"
+                    src={user.avatarUrl}></img>
+                </span>
             </div>
         )
     }
 }
+
 export default UserComponent;

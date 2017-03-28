@@ -8,7 +8,7 @@ export default function reducer(
         }
     },
     action) {
-    switch(action.type) {
+    switch (action.type) {
         case "OPENING_CONVERSATION": {
             var chatId = action.payload.chatId;
             var participants = action.payload.participants;

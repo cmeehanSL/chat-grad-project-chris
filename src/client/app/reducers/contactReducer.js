@@ -8,35 +8,25 @@ export default function reducer(
         // currentConversation: {} // will be chatId and participant/s
     },
     action) {
-    switch(action.type) {
+    switch (action.type) {
         case "LOGIN_SUCCESSFUL": {
             return {
                 ...state,
                 activeUserId: action.payload._id
             }
         }
-        // case "OPENING_CONVERSATION": {
-        //     console.log("opening conversation with friend id " + action.payload);
-        //     return {
-        //         ...state,
-        //         currentConversation: {
-        //             ...state.currentConversation,
-        //             participants: action.payload
-        //         }
-        //     }
-        // }
+
         case "CREATED_NEW_CONVERSATION": {
-            // break;
             var chatId = action.payload._id;
             var participants = action.payload.participants;
             var userId = state.activeUserId;
-            if(participants.length == 2) {
+            if (participants.length === 2) {
                 var friendId = (participants[0] !== userId) ? participants[0] : participants[1];
                 var associativeFriendList = JSON.parse(JSON.stringify(state.associativeFriendList));
                 console.log("copied associativeFriendList and adding chatId " + chatId + " to friend: " + friendId);
                 var friend = associativeFriendList[friendId];
                 friend.chatId = chatId;
-                return{
+                return {
                     ...state,
                     associativeFriendList: associativeFriendList
                 }
@@ -63,9 +53,9 @@ export default function reducer(
             var userId = state.activeUserId;
             var userChats = action.payload.chats;
             var associativeFriendList = JSON.parse(JSON.stringify(state.associativeFriendList));
-                        // populate the assoicative friend list chat IDs
+            // populate the assoicative friend list chat IDs
             userChats.forEach(function(chat) {
-                if(chat.participants.length == 2) {
+                if (chat.participants.length === 2) {
                     var friendId = (chat.participants[0] !== userId) ? chat.participants[0] : chat.participants[1];
 
                     associativeFriendList[friendId].chatId = chat.chatId;
@@ -80,26 +70,7 @@ export default function reducer(
                 associativeFriendList: associativeFriendList
             }
         }
-        // case "RECEIVED_CURRENT_CONVERSATION": {
-        //     return {
-        //         ...state,
-        //         currentConversation: {
-        //             ...state.currentConversation,
-        //             chatId: action.payload.chatId,
-        //             messages: action.payload.messages
-        //         }
-        //     }
-        // }
 
     }
     return state;
-}
-
-function clone(obj) {
-    if (null == obj || "object" != typeof obj) return obj;
-    var copy = obj.constructor();
-    for (var attr in obj) {
-        if (obj.hasOwnProperty(attr)) copy[attr] = clone(obj[attr]);
-    }
-    return copy;
 }

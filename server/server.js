@@ -101,7 +101,7 @@ module.exports = function(port, db, githubAuthoriser, middleware) {
                     {"$set": {"chats": newChats}}
                 );
             });
-            res.json(newChat);
+        res.json(newChat);
 
     });
 
@@ -109,7 +109,7 @@ module.exports = function(port, db, githubAuthoriser, middleware) {
         console.log("received request to add message to chat id of " + req.params.id);
         var targetChatId = req.params.id;
         conversations.findOne({_id: ObjectID(targetChatId)}, function(err, chat) {
-            if(!err) {
+            if (!err) {
                 var newMessage = {
                     sender: req.session.user,
                     content: req.body.content,
@@ -132,8 +132,8 @@ module.exports = function(port, db, githubAuthoriser, middleware) {
 
     app.get("/api/chat/:id", function(req, res) {
         var targetChatId = req.params.id;
-        conversations.findOne({"_id" : ObjectID(targetChatId)}, function(err, chat) {
-            if(chat) {
+        conversations.findOne({"_id": ObjectID(targetChatId)}, function(err, chat) {
+            if (chat) {
                 res.json(chat);
             }
             else {
@@ -158,7 +158,7 @@ module.exports = function(port, db, githubAuthoriser, middleware) {
         userChats.findOne({
             userId: req.session.user
         }, function(err, currentUserChats) {
-            if(currentUserChats) {
+            if (currentUserChats) {
                 res.json(currentUserChats);
             } else {
                 // Create a new list of chats the user is privy to

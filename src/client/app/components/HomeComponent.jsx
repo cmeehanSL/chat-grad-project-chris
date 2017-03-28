@@ -36,11 +36,14 @@ export default class HomeComponent extends React.Component {
                 <div id="chatWindow">
                     &nbsp;
                     <div>
-                        {inConversation ? <ConversationComponent activeUser={activeUser} currentConversation={currentConversation}/> : null}
+                        {inConversation ? <ConversationComponent activeUser={activeUser}
+                            currentConversation={currentConversation}/> : null}
                     </div>
 
                     <div id="sendArea">
-                        {inConversation ? <SendComponent currentConversation={currentConversation} sendMessage={actions.sendMessage} createNewConversation={actions.createNewConversation}/> : null}
+                        {inConversation ? <SendComponent currentConversation={currentConversation}
+                            sendMessage={actions.sendMessage}
+                            createNewConversation={actions.createNewConversation}/> : null}
                     </div>
                 </div>
             </div>

@@ -6,10 +6,10 @@ export default class HomeComponent extends React.Component {
 
     constructor(props) {
         super(props);
-        this.sendNewMessage = this.sendNewMessage.bind(this);
+        this.handleSendNewMessage = this.handleSendNewMessage.bind(this);
     }
 
-    sendNewMessage(event) {
+    handleSendNewMessage(event) {
         event.preventDefault();
         var message = this.refs["messageInput"].value;
         this.refs["messageInput"].value = "";
@@ -27,11 +27,12 @@ export default class HomeComponent extends React.Component {
     render() {
 
         return (
-            <form onSubmit={this.sendNewMessage} class="well" id="messageForm">
-                <div class="input-group">
-                    <input ref="messageInput" type="text" class="form-control" placeholder="New Message"></input>
-                    <span class="input-group-btn">
-                      <button class="btn btn-default" id="sendButton" type="submit">Send</button>
+            <form onSubmit={this.handleSendNewMessage} className="well" id="messageForm">
+                <div className="input-group">
+                    <input ref="messageInput" type="text" className="form-control" placeholder="New Message"></input>
+                    <span className="input-group-btn">
+                      <button className="btn btn-default" id="sendButton" type="submit">Send
+                      </button>
                     </span>
                 </div>
             </form>

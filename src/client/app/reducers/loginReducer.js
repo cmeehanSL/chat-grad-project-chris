@@ -2,11 +2,11 @@ export default function reducer(
     state = {
         loggedIn: false,
         attemptingLogin: false,
-        loginUri: '#'
+        loginUri: "#"
     },
     action
 ) {
-    switch(action.type) {
+    switch (action.type) {
         case "LOGIN_ATTEMPT": {
             return {
                 ...state,

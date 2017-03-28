@@ -7,7 +7,7 @@ export default function reducer(
     },
     action
 ) {
-    switch(action.type) {
+    switch (action.type) {
         case "LOGIN_SUCCESSFUL": {
             return {
                 ...state,

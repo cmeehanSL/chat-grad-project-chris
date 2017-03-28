@@ -11,7 +11,7 @@ export default class ConversationComponent extends React.Component {
     render() {
         var message = this.props.message;
         var activeUser = this.props.activeUser;
-        var sent = (message.sender == activeUser._id) ? true : false;
+        var sent = (message.sender === activeUser._id) ? true : false;
         var className = sent ? "triangle-isosceles left" : "triangle-isosceles right";
         var timestamp = new Date(message.timestamp);
         var timeString = (
@@ -20,11 +20,11 @@ export default class ConversationComponent extends React.Component {
         );
 
         return (
-            <div className={sent ? 'sent' : 'received'}>
+            <div className={sent ? "sent" : "received"}>
                 <p className={className}>
                     {this.props.message.content}
                     <br/>
-                    <span class="messageTime">
+                    <span className="messageTime">
                             {timeString}
                     </span>
             </p>

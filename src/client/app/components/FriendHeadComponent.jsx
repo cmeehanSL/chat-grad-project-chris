@@ -14,8 +14,11 @@ export default class HomeComponent extends React.Component {
         console.log("current friends are " + friends);
 
         return (
-            <div onClick={this.makeActiveChat} class="well chatHeader">
-                <span class="friendHeaderTab"><img class="avatarImg" src={friend.avatarUrl} /><h3>{friend.id}</h3></span>
+            <div className="well chatHeader">
+                <span className="friendHeaderTab">
+                    <img className="avatarImg" src={friend.avatarUrl} />
+                    <h3>{friend.id}</h3>
+                </span>
             </div>
         );
     }

@@ -29,13 +29,13 @@ export default class Layout extends React.Component {
     }
 
     render() {
-        if(!this.props.loggedIn) {
-            return(
+        if (!this.props.loggedIn) {
+            return (
                 <LoginComponent loginUri={this.props.loginUri} />
             )
         }
         else {
-            return(
+            return (
                 <HomeComponent />
             )
         }

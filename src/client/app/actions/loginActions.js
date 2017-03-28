@@ -1,7 +1,7 @@
 import axios from "axios";
 
 export function loginAttempt() {
-    return function(dispatch){
+    return function(dispatch) {
         dispatch({type: "LOGIN_ATTEMPT"});
         axios.get("/api/user")
             .then((response) => {
@@ -9,7 +9,7 @@ export function loginAttempt() {
                 axios.get("/api/users").then((usersReponse) => {
                     dispatch({type: "RECEIVED_USERS", payload: usersReponse.data});
                     dispatch({type: "FETCHING_CHAT_LIST"});
-                    axios.get("/api/user-chats").then( (userChats) => {
+                    axios.get("/api/user-chats").then((userChats) => {
                         console.log("received userChats object of " + userChats.data);
                         dispatch({type: "RECEIVED_CHATS", payload: userChats.data});
                     });

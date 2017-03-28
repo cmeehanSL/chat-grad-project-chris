@@ -1,5 +1,6 @@
 module.exports = function(grunt) {
     grunt.loadNpmTasks("grunt-contrib-jshint");
+    grunt.loadNpmTasks("gruntify-eslint");
     grunt.loadNpmTasks("grunt-jscs");
     grunt.loadNpmTasks("grunt-mocha-test");
     grunt.loadNpmTasks("grunt-mocha-istanbul");
@@ -39,14 +40,26 @@ module.exports = function(grunt) {
                 port: 8080
             }
         },
+        eslint: {
+            all: ["server/**/*.js", "src/**/*.js", "src/**/*.jsx", "!node_modules/**/*"],
+            dev: {
+                src: ["webpack.development.config.js"]
+            }
+        },
         jshint: {
             all: files,
             options: {
                 jshintrc: true
+            },
+            dev: {
+                src: ["webpack.development.config.js"]
             }
         },
         jscs: {
-            all: files
+            all: files,
+            dev: {
+                src: ["webpack.development.config.js"]
+            }
         },
         mochaTest: {
             test: {
@@ -107,9 +120,8 @@ module.exports = function(grunt) {
     });
 
     grunt.registerTask("check", ["jshint", "jscs"]);
-    grunt.registerTask("test", ["check", "mochaTest", "mocha_istanbul", "istanbul_report",
+    grunt.registerTask("escheck", ["eslint"]);
+    grunt.registerTask("test", ["escheck", "mochaTest", "mocha_istanbul", "istanbul_report",
         "istanbul_check_coverage"]);
     grunt.registerTask("default", "test");
-    // grunt.registerTask("wpserver", ["webpack-dev-server:start"]);
-    // grunt.registerTask("dev", ["webpack:build-dev", "express:dev", "watch"]);
 };

@@ -6,17 +6,17 @@ export default class HomeComponent extends React.Component {
 
     constructor(props) {
         super(props);
-        this.makeActiveChat = this.makeActiveChat.bind(this);
+        this.handleMakeActiveChat = this.handleMakeActiveChat.bind(this);
     }
 
-    makeActiveChat() {
+    handleMakeActiveChat() {
         var friend = this.props.friend;
         var actions = this.props.actions;
         var openConversation = actions.openConversation;
         var fetchConversation = actions.fetchConversation;
         openConversation([friend], friend.chatId);
 
-        if (friend.chatId != null) {
+        if (friend.chatId !== null) {
             fetchConversation(friend.chatId);
         }
     }
@@ -26,8 +26,10 @@ export default class HomeComponent extends React.Component {
         var openConversation = this.props.openConversation;
 
         return (
-            <div onClick={this.makeActiveChat} class="well">
-                <span class="friendTab"><img class="avatarImg" src={friend.avatarUrl} /><h5>{friend.id}</h5></span>
+            <div onClick={this.handleMakeActiveChat} className="well">
+                <span className="friendTab"><img className="avatarImg"
+                    src={friend.avatarUrl} /><h5>{friend.id}</h5>
+                </span>
             </div>
         );
     }

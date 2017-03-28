@@ -23,8 +23,8 @@ var config = {
                 exclude: /node_modules/,
                 loader: "babel-loader",
                 query: {
-                  presets: ["react", "es2015", "stage-0"],
-                  plugins: ["react-html-attrs", "transform-class-properties", "transform-decorators-legacy"],
+                    presets: ["react", "es2015", "stage-0"],
+                    plugins: ["react-html-attrs", "transform-class-properties", "transform-decorators-legacy"],
                 }
             },
             {
