@@ -31,7 +31,6 @@ module.exports = function(port, db, githubAuthoriser, middleware) {
                             _id: githubUser.login,
                             name: githubUser.name,
                             avatarUrl: githubUser.avatar_url,
-                            // userChats: populateNewUserChats();
                         });
                     }
                     sessions[token] = {
@@ -48,30 +47,6 @@ module.exports = function(port, db, githubAuthoriser, middleware) {
 
         });
     });
-
-    // function populateNewUserChats() {
-    //     var newUserChats = [];
-    //     users.find().each(function(err, item) {
-    //         if(item._id !== req.session.user) {
-    //             // create a new chat
-    //             chats.insertOne({
-    //                 participants: [req.session.user, item._id]
-    //                 messages: []
-    //             }, function(err, newChat) {
-    //                 // add the new chat Id and participants to the user chats
-    //                 var newUserChat = {
-    //                     chatId: newChat._id,
-    //                     participants: newChat.participants
-    //                 };
-    //                 newUserChats.push(newUserChat);
-    //                 // also add this to the other user
-    //                 item.userChats
-    //             });
-    //             //
-    //         }
-    //     })
-    // }
-
 
     app.get("/api/oauth/uri", function(req, res) {
         res.json({
@@ -92,22 +67,10 @@ module.exports = function(port, db, githubAuthoriser, middleware) {
         }
     });
 
-    // function getCurrentUser() {
-    //
-    //     var currentUser;
-    //     users.findOne({
-    //         _id: req.session.user
-    //     }, function(err, user) {
-    //         currentUser = user;
-    //         return currentUser;
-    //     });
-    // }
 
     app.post("/api/chat", function(req, res) {
         var activeUserId = req.session.user;
 
-        console.log(Object.keys(req));
-        console.log(req.body.otherParticipants);
         var otherParticipants = req.body.otherParticipants;
 
         var participantIds = [activeUserId];
@@ -137,22 +100,8 @@ module.exports = function(port, db, githubAuthoriser, middleware) {
                     {userId: userChatList.userId},
                     {"$set": {"chats": newChats}}
                 );
-                console.log("should have updated the list");
-
-                console.log("currently on userChatList where the id is " + userChatList.userId);
-                console.log("and adding a chat with the id of " + newChat._id);
-                // userChatList.chats.push({
-                //     chatId: newChat._id,
-                //     participants: newChat.participants
-                // });
-                //update the actual list one the database or it wont refresh
             });
-
-            console.log("creating conversation with participants: " + participantIds );
-            console.log("the new chat id is " + newChat._id);
-            console.log("the newChat has keys " + Object.keys(newChat));
             res.json(newChat);
-        // });
 
     });
 
@@ -161,12 +110,10 @@ module.exports = function(port, db, githubAuthoriser, middleware) {
         var targetChatId = req.params.id;
         conversations.findOne({_id: ObjectID(targetChatId)}, function(err, chat) {
             if(!err) {
-                console.log("found chat");
-                console.log("chat is " + chat);
-                console.log("chat contains " + Object.keys(chat));
                 var newMessage = {
                     sender: req.session.user,
-                    content: req.body.content
+                    content: req.body.content,
+                    timestamp: req.body.timestamp
                 }
 
                 var newMessages = chat.messages.concat(newMessage);
@@ -174,7 +121,6 @@ module.exports = function(port, db, githubAuthoriser, middleware) {
                     {_id: ObjectID(targetChatId)},
                     {"$set": {"messages": newMessages}}
                 );
-                console.log("should have added a new message to the chat")
                 res.json(newMessage);
             }
             else {
@@ -185,17 +131,9 @@ module.exports = function(port, db, githubAuthoriser, middleware) {
     })
 
     app.get("/api/chat/:id", function(req, res) {
-        console.log("received request for chat id of " + req.params.id);
         var targetChatId = req.params.id;
-        conversations.find().forEach(function(item) {
-            console.log("current chat id is " + item._id);
-            console.log("is this equal to " + targetChatId + "? + " + (targetChatId === item._id));
-        })
         conversations.findOne({"_id" : ObjectID(targetChatId)}, function(err, chat) {
             if(chat) {
-                console.log("foundChat ");
-                console.log("chat is " + chat);
-                // console.log("chat contains " + Object.keys(chat));
                 res.json(chat);
             }
             else {
@@ -205,54 +143,29 @@ module.exports = function(port, db, githubAuthoriser, middleware) {
     })
 
     app.get("/api/user", function(req, res) {
-        console.log("get api user");
         users.findOne({
             _id: req.session.user
         }, function(err, user) {
             if (!err) {
                 res.json(user);
             } else {
-                console.log("sending a 500");
                 res.sendStatus(500);
             }
         });
     });
 
     app.get("/api/user-chats", function(req, res) {
-        console.log("get api user chats");
         userChats.findOne({
             userId: req.session.user
         }, function(err, currentUserChats) {
             if(currentUserChats) {
-                console.log("found a userChats with this user");
-                console.log("it is " + currentUserChats);
                 res.json(currentUserChats);
             } else {
-                console.log("creating a new blank userChats for this user");
                 // Create a new list of chats the user is privy to
                 var newUserChats = {
                     userId: req.session.user,
                     chats: []
                 }
-                // // loop through the other users and create new chat IDs
-                // // and add them to the list of chats
-                // users.find().each(function(err, item) {
-                //     if(item._id !== req.session.user) {
-                //         chats.insertOne({
-                //             participants: [req.session.user, item._id],
-                //             messages: []
-                //         }, function(err, newChat) {
-                //             newUserChats.chats.push({
-                //                 chatId: newChat._id;
-                //                 participants: []
-                //             });
-                //             userChats.findOne({
-                //                 userId: item._id;
-                //             }, function())
-                //
-                //         })
-                //     }
-                // })
                 userChats.insertOne(newUserChats);
                 res.json(newUserChats);
             }

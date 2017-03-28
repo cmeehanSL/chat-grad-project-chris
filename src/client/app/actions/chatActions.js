@@ -38,10 +38,6 @@ export function createNewConversation(otherParticipants, text) {
             dispatch({type: "CREATED_NEW_CONVERSATION", payload: newChatResponse.data});
             dispatch({type: "RECEIVED_CURRENT_CONVERSATION", payload: newChatResponse.data});
             dispatch(sendMessage(newChatResponse.data._id, text));
-            // axios.get("/api/user-chats").then( (userChats) => {
-            //     console.log("received userChats object of " + userChats.data);
-            //     dispatch({type: "RECEIVED_CHATS", payload: userChats.data});
-            // });
         })
         // Will have to catch the code in case that chat somehow already existed in which case don't
         // make a new chat between the same two participants and don't make current convo equal it
@@ -59,9 +55,11 @@ export function closeConversation() {
 export function sendMessage(chatId, text) {
     return function(dispatch) {
         dispatch({type: "SENDING_NEW_MESSAGE", payload: text});
+        var messageTimestamp = new Date();
         axios.post("/api/chat/" + chatId, {
             type: "sent",
-            content: text
+            content: text,
+            timestamp: messageTimestamp
         })
         .then(function(newMessageResponse) {
             dispatch({type: "SENT_MESSAGE", payload: newMessageResponse.data});

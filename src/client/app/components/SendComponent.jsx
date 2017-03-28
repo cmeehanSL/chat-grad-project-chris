@@ -25,8 +25,6 @@ export default class HomeComponent extends React.Component {
     }
 
     render() {
-        // var friend = this.props.friend;
-        // var openConversation = this.props.openConversation;
 
         return (
             <form onSubmit={this.sendNewMessage} class="well" id="messageForm">

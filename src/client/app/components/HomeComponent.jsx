@@ -6,7 +6,7 @@ import {bindActionCreators} from "redux";
 import UserComponent from "./UserComponent.jsx";
 import FriendListComponent from "./FriendListComponent.jsx";
 import ConversationComponent from "./ConversationComponent.jsx";
-import NewMessageComponent from "./NewMessageComponent.jsx";
+import SendComponent from "./SendComponent.jsx";
 
 function mapStateToProps(state) {
     return {
@@ -25,11 +25,8 @@ function mapDispatchToProps(dispatch) {
 @connect(mapStateToProps, mapDispatchToProps)
 export default class HomeComponent extends React.Component {
     render() {
-        console.log("currentConversation in HomeComponent is " + this.props.currentConversation);
-        console.log("friends list in HomeComponent is " + this.props.friendList);
         const { activeUser, associativeFriendList, currentConversation, actions } = this.props;
         var inConversation = (this.props.currentConversation.participants !== null);
-        console.log("in conversation is "+ inConversation);
         return (
             <div id="mainWindow">
                 <div id="contactBar">
@@ -43,13 +40,10 @@ export default class HomeComponent extends React.Component {
                     </div>
 
                     <div id="sendArea">
-                        {inConversation ? <NewMessageComponent currentConversation={currentConversation} sendMessage={actions.sendMessage} createNewConversation={actions.createNewConversation}/> : null}
+                        {inConversation ? <SendComponent currentConversation={currentConversation} sendMessage={actions.sendMessage} createNewConversation={actions.createNewConversation}/> : null}
                     </div>
                 </div>
             </div>
         );
     }
 }
-
-
-// <FriendList />

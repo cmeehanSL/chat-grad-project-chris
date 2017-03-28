@@ -12,10 +12,22 @@ export default class ConversationComponent extends React.Component {
         var message = this.props.message;
         var activeUser = this.props.activeUser;
         var sent = (message.sender == activeUser._id) ? true : false;
+        var className = sent ? "triangle-isosceles left" : "triangle-isosceles right";
+        var timestamp = new Date(message.timestamp);
+        var timeString = (
+            ("0" + timestamp.getHours()).slice(-2)   + ":" +
+            ("0" + timestamp.getMinutes()).slice(-2)
+        );
 
         return (
             <div className={sent ? 'sent' : 'received'}>
-                <p>{this.props.message.content}</p>
+                <p className={className}>
+                    {this.props.message.content}
+                    <br/>
+                    <span class="messageTime">
+                            {timeString}
+                    </span>
+            </p>
             </div>
         );
     }

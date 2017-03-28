@@ -19,9 +19,6 @@ export default class HomeComponent extends React.Component {
         if (friend.chatId != null) {
             fetchConversation(friend.chatId);
         }
-        else {
-            //set the current convo chat id to null
-        }
     }
 
     render() {
