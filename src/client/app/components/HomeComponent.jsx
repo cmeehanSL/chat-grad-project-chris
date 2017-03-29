@@ -4,7 +4,7 @@ import * as chatActionCreators from "../actions/chatActions";
 import {bindActionCreators} from "redux";
 
 import UserComponent from "./UserComponent.jsx";
-import FriendListComponent from "./FriendListComponent.jsx";
+import ListComponent from "./ListComponent.jsx";
 import ConversationComponent from "./ConversationComponent.jsx";
 import SendComponent from "./SendComponent.jsx";
 
@@ -12,7 +12,9 @@ function mapStateToProps(state) {
     return {
         activeUser: state.userReducer.activeUser,
         associativeFriendList: state.contactReducer.associativeFriendList,
-        currentConversation: state.chatReducer.currentConversation
+        currentConversation: state.chatReducer.currentConversation,
+        listingContacts: state.contactReducer.listingContacts,
+        conversations: state.contactReducer.conversations
     };
 }
 
@@ -25,13 +27,14 @@ function mapDispatchToProps(dispatch) {
 @connect(mapStateToProps, mapDispatchToProps)
 export default class HomeComponent extends React.Component {
     render() {
-        const { activeUser, associativeFriendList, currentConversation, actions } = this.props;
+        const { activeUser, associativeFriendList, currentConversation, listingContacts, actions, conversations } = this.props;
         var inConversation = (this.props.currentConversation.participants !== null);
         return (
             <div id="mainWindow">
                 <div id="contactBar">
                     <UserComponent closeConversation={actions.closeConversation} user={activeUser} />
-                    <FriendListComponent actions={actions} friendList={associativeFriendList} />
+                    <ListComponent activeUser={activeUser} actions={actions} friendList={associativeFriendList}
+                        listingContacts={listingContacts} conversations={conversations}/>
                 </div>
                 <div id="chatWindow">
                     &nbsp;

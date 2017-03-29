@@ -9,7 +9,6 @@ export default class ConversationComponent extends React.Component {
 
     constructor(props) {
         super(props);
-
     }
 
     render() {

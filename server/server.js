@@ -2,6 +2,7 @@ var express = require("express");
 var cookieParser = require("cookie-parser");
 var bodyParser = require("body-parser");
 var ObjectID = require("mongodb").ObjectID;
+var util = require("util");
 
 module.exports = function(port, db, githubAuthoriser, middleware) {
     var app = express();
@@ -67,7 +68,6 @@ module.exports = function(port, db, githubAuthoriser, middleware) {
         }
     });
 
-
     app.post("/api/chat", function(req, res) {
         var activeUserId = req.session.user;
 
@@ -93,8 +93,11 @@ module.exports = function(port, db, githubAuthoriser, middleware) {
                 var newChats = userChatList.chats.slice();
                 newChats.push({
                     chatId: newChat._id,
-                    participants: newChat.participants
+                    participants: newChat.participants,
+                    mostRecentMessage: null,
+                    unseenCount: 0
                 });
+
 
                 userChats.update(
                     {userId: userChatList.userId},
@@ -113,7 +116,8 @@ module.exports = function(port, db, githubAuthoriser, middleware) {
                 var newMessage = {
                     sender: req.session.user,
                     content: req.body.content,
-                    timestamp: req.body.timestamp
+                    timestamp: req.body.timestamp,
+                    chatId: chat._id
                 }
 
                 var newMessages = chat.messages.concat(newMessage);
@@ -121,6 +125,40 @@ module.exports = function(port, db, githubAuthoriser, middleware) {
                     {_id: ObjectID(targetChatId)},
                     {"$set": {"messages": newMessages}}
                 );
+
+                // Update the most recent message in current user's chat list
+                // as well as recepients, and increment their unseen counter
+                var x = 0;
+                userChats.find(
+                    {chats: { $elemMatch: {chatId: chat._id}}}).
+                    forEach(function(userChatList) {
+                        x++;
+                        var userId = userChatList.userId;
+                        var newChats = userChatList.chats.map(function(currentChat) {
+                            console.log("looping through, current userChatList is " + userChatList.userId);
+                            console.log("current chat id is " + ObjectID(currentChat.chatId) + " and new message chat id is " + ObjectID(newMessage.chatId));
+                            if (ObjectID(currentChat.chatId) === ObjectID(newMessage.chatId)) {
+                                currentChat.mostRecentMessage = newMessage;
+                                console.log("current chat most recent message is now " + util.inspect(currentChat.mostRecentMessage, false, null));
+                                if (newMessage.sender !== req.session.user) {
+                                    currentChat.unseenCount++;
+                                    currentChat.seen = false;
+                                }
+                                else {
+                                    currentChat.seen = true;
+                                }
+                            }
+                            console.log("returning new currentChat with chat id of " + currentChat.chatId);
+                            return currentChat;
+                        });
+                        console.log("newchats first obj is now : " + util.inspect(newChats[0], false, null));
+                        console.log("updating userchats where the user id is " + userId);
+                        userChats.update(
+                            {userId: userId},
+                            {"$set": {"chats": newChats}}
+                        );
+                    });
+
                 res.json(newMessage);
             }
             else {

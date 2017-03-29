@@ -81,7 +81,7 @@
     }
 }
 
-#friendList {
+#friendList, #chatList {
     list-style-type: none;
     padding: 0;
     li {
@@ -89,6 +89,7 @@
         .well{margin-bottom: 5px;}
     }
 }
+
 
  .chatHeader {
     width: 30%;

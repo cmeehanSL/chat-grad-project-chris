@@ -2,9 +2,10 @@ export default function reducer(
     state = {
         // sendingMessage: false,
         activeUserId: null,
-        userChats: [],
+        conversations: [],
         friendList: [],
-        associativeFriendList: {}
+        associativeFriendList: {},
+        listingContacts: true
         // currentConversation: {} // will be chatId and participant/s
     },
     action) {
@@ -15,11 +16,23 @@ export default function reducer(
                 activeUserId: action.payload._id
             }
         }
-
+        case "CHANGING_LIST_VIEW": {
+            var newListingContacts = action.payload;
+            return {
+                ...state,
+                listingContacts: newListingContacts
+            }
+        }
         case "CREATED_NEW_CONVERSATION": {
             var chatId = action.payload._id;
             var participants = action.payload.participants;
             var userId = state.activeUserId;
+            // Add the new chat to the user's conversations so that chat components can be re-rendered
+            // NOTE This will already be added to the User's chats on the server
+            var conversations = state.conversations.concat({
+                chatId: chatId,
+                participants: participants
+            });
             if (participants.length === 2) {
                 var friendId = (participants[0] !== userId) ? participants[0] : participants[1];
                 var associativeFriendList = JSON.parse(JSON.stringify(state.associativeFriendList));
@@ -28,7 +41,8 @@ export default function reducer(
                 friend.chatId = chatId;
                 return {
                     ...state,
-                    associativeFriendList: associativeFriendList
+                    associativeFriendList: associativeFriendList,
+                    conversations: conversations
                 }
             }
         }
@@ -49,12 +63,11 @@ export default function reducer(
             }
         }
         case "RECEIVED_CHATS": {
-            console.log("received userchat object of " + action.payload);
             var userId = state.activeUserId;
-            var userChats = action.payload.chats;
+            var conversations = action.payload.chats;
             var associativeFriendList = JSON.parse(JSON.stringify(state.associativeFriendList));
             // populate the assoicative friend list chat IDs
-            userChats.forEach(function(chat) {
+            conversations.forEach(function(chat) {
                 if (chat.participants.length === 2) {
                     var friendId = (chat.participants[0] !== userId) ? chat.participants[0] : chat.participants[1];
 
@@ -66,7 +79,7 @@ export default function reducer(
             // of chat components)
             return {
                 ...state,
-                userChats: userChats,
+                conversations: conversations,
                 associativeFriendList: associativeFriendList
             }
         }

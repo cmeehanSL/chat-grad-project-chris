@@ -1,6 +1,7 @@
 export default function reducer(
     state = {
         sendingMessage: false,
+        conversations: [],
         currentConversation: {
             chatId: null,
             messages: [],
@@ -19,6 +20,40 @@ export default function reducer(
                     chatId: chatId,
                     participants: participants,
                     messages: []
+                }
+            }
+        }
+        case "RECEIVED_CHATS": {
+            // var userId = state.activeUserId;
+            var userChats = action.payload.chats;
+            // var associativeFriendList = JSON.parse(JSON.stringify(state.associativeFriendList));
+            // populate the assoicative friend list chat IDs
+            var conversations = [];
+            userChats.forEach(function(chat) {
+                conversations.push()
+            });
+            // TODO ALSO add the actual contact details (taken from the associative
+            // array) and put them into the chat List array (for when adding the list
+            // of chat components)
+            return {
+                ...state,
+                userChats: userChats,
+                associativeFriendList: associativeFriendList
+            }
+        }
+        case "LOADING_PARTICIPANT_INFO": {
+            var otherParticipantIds = action.payload.otherParticipantIds;
+            var associativeFriendList = action.payload.associativeFriendList;
+            var otherParticipants = [];
+            otherParticipantIds.forEach(function(participantId) {
+                var participant = associativeFriendList[participantId];
+                otherParticipants.push(participant);
+            });
+            return {
+                ...state,
+                currentConversation: {
+                    ...state.currentConversation,
+                    participants: otherParticipants
                 }
             }
         }

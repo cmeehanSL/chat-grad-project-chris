@@ -21,6 +21,22 @@ export function fetchConversation(chatId) {
     }
 }
 
+export function loadParticipantInfo(otherParticipantIds, associativeFriendList) {
+    return function(dispatch) {
+        var payload = {
+            otherParticipantIds: otherParticipantIds,
+            associativeFriendList: associativeFriendList
+        };
+
+        dispatch({type: "LOADING_PARTICIPANT_INFO", payload: payload});
+    }
+}
+
+export function changeListingContacts(listContacts) {
+    return function(dispatch) {
+        dispatch({type: "CHANGING_LIST_VIEW", payload: listContacts});
+    }
+}
 
 export function createNewConversation(otherParticipants, text) {
     return function(dispatch) {

@@ -2,7 +2,7 @@ import React from "react";
 import {connect} from "react-redux";
 
 
-export default class HomeComponent extends React.Component {
+export default class FriendComponent extends React.Component {
 
     constructor(props) {
         super(props);
@@ -23,7 +23,6 @@ export default class HomeComponent extends React.Component {
 
     render() {
         var friend = this.props.friend;
-        var openConversation = this.props.openConversation;
 
         return (
             <div onClick={this.handleMakeActiveChat} className="well">
