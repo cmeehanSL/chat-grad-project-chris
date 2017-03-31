@@ -79,8 +79,14 @@ export function sendMessage(chatId, text) {
         })
         .then(function(newMessageResponse) {
             dispatch({type: "SENT_MESSAGE", payload: newMessageResponse.data});
+            axios.get("/api/user-chats").then((userChats) => {
+                console.log("received userChats object of " + userChats.data);
+                dispatch({type: "RECEIVED_UPDATED_CHATS", payload: userChats.data});
+            });
         })
-        .catch()
+        .catch(function() {
+            dispatch({type: "SENDING_MESSAGE_FAILED"});
+        })
 
     }
 }

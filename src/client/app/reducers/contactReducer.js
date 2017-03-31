@@ -2,7 +2,7 @@ export default function reducer(
     state = {
         // sendingMessage: false,
         activeUserId: null,
-        conversations: [],
+        // conversations: [],
         friendList: [],
         associativeFriendList: {},
         listingContacts: true
@@ -29,10 +29,6 @@ export default function reducer(
             var userId = state.activeUserId;
             // Add the new chat to the user's conversations so that chat components can be re-rendered
             // NOTE This will already be added to the User's chats on the server
-            var conversations = state.conversations.concat({
-                chatId: chatId,
-                participants: participants
-            });
             if (participants.length === 2) {
                 var friendId = (participants[0] !== userId) ? participants[0] : participants[1];
                 var associativeFriendList = JSON.parse(JSON.stringify(state.associativeFriendList));
@@ -42,7 +38,6 @@ export default function reducer(
                 return {
                     ...state,
                     associativeFriendList: associativeFriendList,
-                    conversations: conversations
                 }
             }
         }
@@ -62,7 +57,7 @@ export default function reducer(
                 associativeFriendList: associativeFriendList
             }
         }
-        case "RECEIVED_CHATS": {
+        case "RECEIVED_INITIAL_CHATS": {
             var userId = state.activeUserId;
             var conversations = action.payload.chats;
             var associativeFriendList = JSON.parse(JSON.stringify(state.associativeFriendList));
@@ -79,7 +74,7 @@ export default function reducer(
             // of chat components)
             return {
                 ...state,
-                conversations: conversations,
+                // conversations: conversations,
                 associativeFriendList: associativeFriendList
             }
         }

@@ -14,7 +14,7 @@ function mapStateToProps(state) {
         associativeFriendList: state.contactReducer.associativeFriendList,
         currentConversation: state.chatReducer.currentConversation,
         listingContacts: state.contactReducer.listingContacts,
-        conversations: state.contactReducer.conversations
+        conversations: state.chatReducer.conversations
     };
 }
 

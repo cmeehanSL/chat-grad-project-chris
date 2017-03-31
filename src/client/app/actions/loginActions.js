@@ -11,7 +11,8 @@ export function loginAttempt() {
                     dispatch({type: "FETCHING_CHAT_LIST"});
                     axios.get("/api/user-chats").then((userChats) => {
                         console.log("received userChats object of " + userChats.data);
-                        dispatch({type: "RECEIVED_CHATS", payload: userChats.data});
+                        dispatch({type: "RECEIVED_INITIAL_CHATS", payload: userChats.data});
+                        dispatch({type: "RECEIVED_UPDATED_CHATS", payload: userChats.data});
                     });
                 });
             })

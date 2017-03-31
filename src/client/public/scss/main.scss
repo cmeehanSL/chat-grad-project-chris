@@ -40,6 +40,13 @@
       background-color: green;
   }
 
+  .conversationTab {
+      p {
+          opacity: 0.5;
+          font-size: 12px;
+      }
+  }
+
   #sendArea {
     //   max-width: 100%;
       flex-grow: 1;

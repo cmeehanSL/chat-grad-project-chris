@@ -23,22 +23,16 @@ export default function reducer(
                 }
             }
         }
-        case "RECEIVED_CHATS": {
+        case "RECEIVED_UPDATED_CHATS": {
             // var userId = state.activeUserId;
-            var userChats = action.payload.chats;
-            // var associativeFriendList = JSON.parse(JSON.stringify(state.associativeFriendList));
-            // populate the assoicative friend list chat IDs
-            var conversations = [];
-            userChats.forEach(function(chat) {
-                conversations.push()
-            });
+            var conversations = action.payload.chats;
+
             // TODO ALSO add the actual contact details (taken from the associative
             // array) and put them into the chat List array (for when adding the list
             // of chat components)
             return {
                 ...state,
-                userChats: userChats,
-                associativeFriendList: associativeFriendList
+                conversations: conversations,
             }
         }
         case "LOADING_PARTICIPANT_INFO": {
@@ -77,6 +71,20 @@ export default function reducer(
                     chatId: returnedChat._id,
                     messages: returnedChat.messages
                 }
+            }
+        }
+        case "CREATED_NEW_CONVERSATION": {
+            var chatId = action.payload._id;
+            var participants = action.payload.participants;
+            // Add the new chat to the user's conversations so that chat components can be re-rendered
+            // NOTE This will already be added to the User's chats on the server
+            var conversations = state.conversations.concat({
+                chatId: chatId,
+                participants: participants
+            });
+            return {
+                ...state,
+                conversations: conversations
             }
         }
         case "SENT_MESSAGE": {

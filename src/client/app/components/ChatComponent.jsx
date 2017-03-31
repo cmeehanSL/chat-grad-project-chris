@@ -29,7 +29,14 @@ export default class ChatComponent extends React.Component {
 
     render() {
         var activeUser = this.props.activeUser;
-        var participantIds = this.props.conversation.participants;
+        var conversation = this.props.conversation;
+        var mostRecentMessage = conversation.mostRecentMessage;
+        var timestamp = new Date(mostRecentMessage.timestamp);
+        var timeString = (
+            ("0" + timestamp.getHours()).slice(-2)   + ":" +
+            ("0" + timestamp.getMinutes()).slice(-2)
+        );
+        var participantIds = conversation.participants;
         return (
             <div onClick={this.handleMakeActiveChat} className="well">
                 <span className="conversationTab">
@@ -40,6 +47,7 @@ export default class ChatComponent extends React.Component {
                             </span>
                         )
                     })}
+                    <p>{timeString} &nbsp; {mostRecentMessage.content} {(mostRecentMessage.sender == activeUser._id) ? <span class="glyphicon glyphicon-ok"></span> : null}</p>
                 </span>
             </div>
         );
