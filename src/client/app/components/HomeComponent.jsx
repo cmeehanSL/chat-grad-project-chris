@@ -27,7 +27,11 @@ function mapDispatchToProps(dispatch) {
 @connect(mapStateToProps, mapDispatchToProps)
 export default class HomeComponent extends React.Component {
     render() {
-        const { activeUser, associativeFriendList, currentConversation, listingContacts, actions, conversations } = this.props;
+        const {
+            activeUser, associativeFriendList,
+            currentConversation, listingContacts,
+            actions, conversations
+        } = this.props;
         var inConversation = (this.props.currentConversation.participants !== null);
         return (
             <div id="mainWindow">
@@ -37,16 +41,16 @@ export default class HomeComponent extends React.Component {
                         listingContacts={listingContacts} conversations={conversations}/>
                 </div>
                 <div id="chatWindow">
-                    &nbsp;
-                    <div>
-                        {inConversation ? <ConversationComponent activeUser={activeUser}
-                            currentConversation={currentConversation}/> : null}
-                    </div>
-
+                    {inConversation ? <ConversationComponent resetUnseenCount={actions.resetUnseenCount}
+                        activeUser={activeUser} currentConversation={currentConversation}/> :
+                        null
+                    }
                     <div id="sendArea">
                         {inConversation ? <SendComponent currentConversation={currentConversation}
                             sendMessage={actions.sendMessage}
-                            createNewConversation={actions.createNewConversation}/> : null}
+                            createNewConversation={actions.createNewConversation}/> :
+                            null
+                        }
                     </div>
                 </div>
             </div>

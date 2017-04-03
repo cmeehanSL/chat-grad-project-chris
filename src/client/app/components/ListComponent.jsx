@@ -29,12 +29,18 @@ export default class ListComponent extends React.Component {
         var conversations = this.props.conversations;
         return (
             <div>
-                <ul class="nav nav-tabs" role="tablist">
-                    <li role="presentation" className={!listingContacts ? "active" : null}><a onClick={this.handleDisplayChats} href="#">Chats</a></li>
-                    <li role="presentation" className={listingContacts ? "active" : null}><a onClick={this.handleDisplayContacts} href="#">Contacts</a></li>
+                <ul className="nav nav-tabs" role="tablist">
+                    <li role="presentation" className={!listingContacts ? "active" : null}>
+                        <a onClick={this.handleDisplayChats} href="#">Chats</a>
+                    </li>
+                    <li role="presentation" className={listingContacts ? "active" : null}>
+                        <a onClick={this.handleDisplayContacts} href="#">Contacts</a>
+                    </li>
                 </ul>
-                {listingContacts ? <FriendListComponent actions={actions} friendList={friendList} />
-            : <ChatListComponent friendList={friendList} activeUser={activeUser} conversations={conversations} actions={actions} />}
+                {listingContacts ? <FriendListComponent actions={actions} friendList={friendList} /> :
+                <ChatListComponent friendList={friendList} activeUser={activeUser}
+                    conversations={conversations} actions={actions} />
+                }
             </div>
         );
     }

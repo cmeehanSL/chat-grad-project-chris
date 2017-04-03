@@ -14,14 +14,17 @@ export default class ConversationComponent extends React.Component {
 
     componentDidMount() {
         this.scrollToBottom();
+        // this.props.resetUnseenCount(this.props.currentConversation.chatId);
     }
 
     componentDidUpdate() {
         this.scrollToBottom();
+        console.log("current convo is " + this.props.currentConversation.chatId);
+        // this.props.resetUnseenCount(this.props.currentConversation.chatId);
     }
 
     scrollToBottom = () => {
-        const node = ReactDOM.findDOMNode(this.messagesEnd);
+        const node = ReactDOM.findDOMNode(this.refs["messagesEnd"]);
         node.scrollIntoView({behavior: "smooth"});
     }
 
@@ -42,8 +45,8 @@ export default class ConversationComponent extends React.Component {
                             </div>
                         )
                     })}
-                    <div style={ {float:"left", clear: "both"} }
-                        ref={(el) => { this.messagesEnd = el; }}>
+                    <div style={{float: "left", clear: "both"}}
+                        ref="messagesEnd">
                     </div>
                 </div>
             </div>

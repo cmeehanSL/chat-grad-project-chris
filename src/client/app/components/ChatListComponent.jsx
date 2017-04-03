@@ -28,7 +28,9 @@ export default class ChatListComponent extends React.Component {
                 {sortedConversations.map(function(conversation, key) {
                     return (
                         <li key={key}>
-                            <ChatComponent friendList={friendList} actions={actions} activeUser={activeUser} conversation={conversation} key={key}/>
+                            <ChatComponent friendList={friendList} actions={actions}
+                                activeUser={activeUser} conversation={conversation}
+                                key={key}/>
                         </li>
                     )
                 })}

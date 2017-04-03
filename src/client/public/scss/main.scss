@@ -1,19 +1,21 @@
 #mainWindow {
     display: flex;
     flex-flow: row;
+    height: 100%;
 }
 
   #contactBar{
       align-self: stretch;
-      height: 100%;
+    //   height: 100%;
       width: 400px;
       min-width: 400px;
       background-color: orange;
   }
 
-  #chatWindow{
+  #chatWindow {
       flex-grow: 1;
     //   align-self: stretch;
+      display: -webkit-flex;
       display: flex;
       background-color: green;
       flex-flow: column;
@@ -41,11 +43,20 @@
   }
 
   .conversationTab {
+      h5{
+          display: inline;
+      }
       p {
           opacity: 0.5;
           font-size: 12px;
       }
   }
+
+  .badge {
+      background-color: orange;
+  }
+
+
 
   #sendArea {
     //   max-width: 100%;
@@ -126,6 +137,10 @@
     margin-right: 50px;
     background: #1E90FF;
     float: right;
+    clear: both;
+}
+
+.sent {
     clear: both;
 }
 

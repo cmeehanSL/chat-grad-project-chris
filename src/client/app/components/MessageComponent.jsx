@@ -27,7 +27,7 @@ export default class ConversationComponent extends React.Component {
                     <span className="messageTime">
                             {timeString}
                     </span>
-            </p>
+                </p>
             </div>
         );
     }

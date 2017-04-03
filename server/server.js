@@ -85,20 +85,64 @@ module.exports = function(port, db, githubAuthoriser, middleware) {
             messages: []
         };
 
-        console.log("participants are " +  newChat.participants);
+        // Check to see if such a conversation already exists
+        userChats.findOne(
+            {userId: req.session.user,
+                "chats.participants": {
+                    "$size": participantIds.length,
+                    "$all": participantIds
+                }
+            }
+        ).then(function(doc) {
+            if (doc) {
+                // Such a conversation already exists
+                console.log("such a convo already exists");
+                res.sendStatus(200);
+                return;
+                console.log("shouldn't get here");
+            }
+            else {
+                console.log("convo doesn't exist yet");
+                createNewConversation(newChat, res);
+            }
+        })
 
-        // var q = async.queue(function(doc, callback) {
-        //     userChats.update(
-        //         {userId: doc.userId},
-        //         {"$push": {"chats": doc.newUserChat}},
-        //         {w: 1}, callback);
-        //     }, Infinity);
 
+        // // Add it to the database of chats
+        // conversations.insertOne(newChat)
+        // .then(function(doc) {
+        //     newChat._id = doc.insertedId;
+        //     var newUserChat = {
+        //         chatId: newChat._id,
+        //         participants: newChat.participants,
+        //         mostRecentMessage: null,
+        //         unseenCount: 0
+        //     }
+        //     userChats.updateMany(
+        //         {userId: {$in: newUserChat.participants}},
+        //         {"$push": {"chats": newUserChat}}
+        //     )
+        //     .then(function(result) {
+        //         if (result) {
+        //             res.json(newChat);
+        //         }
+        //         else {
+        //             res.sendStatus(500);
+        //         }
+        //     });
+        // })
+        // .catch(function(err) {
+        //     res.sendStatus(500);
+        // });
+
+            //TODO check if such a conversation already exists!
+            // insert the chat id and participants into each of the user's subscribed chat list
+    });
+
+    function createNewConversation(newChat, res) {
         // Add it to the database of chats
         conversations.insertOne(newChat)
         .then(function(doc) {
-            console
-            console.log("inserted id of " + doc.insertedId);
             newChat._id = doc.insertedId;
             var newUserChat = {
                 chatId: newChat._id,
@@ -106,75 +150,50 @@ module.exports = function(port, db, githubAuthoriser, middleware) {
                 mostRecentMessage: null,
                 unseenCount: 0
             }
-            console.log("participants to update are " + newUserChat.participants);
             userChats.updateMany(
                 {userId: {$in: newUserChat.participants}},
                 {"$push": {"chats": newUserChat}}
             )
             .then(function(result) {
-                if(result) {
-                    console.log("should have updated all user chats to contain this new chat");
-                    console.log("returning new chat");
+                if (result) {
+                    res.status(201);
                     res.json(newChat);
                 }
                 else {
-                    console.log("logging error");
-                    // console.log(err);
-                    res.status(500);
+                    res.sendStatus(500);
                 }
             });
         })
         .catch(function(err) {
-            console.log(err);
-            res.status(500);
+            res.sendStatus(500);
         });
 
-            //TODO check if such a conversation already exists!
-            // insert the chat id and participants into each of the user's subscribed chat list
+    }
 
-            // console.log("was a chat added? :: " + addedChat);
-
-
-            // userChats.find({ userId: {$in: addedChat.participants}}).snapshot()
-            // .forEach(function(userChatList) {
-            //     userChats.update(
-            //         {userId: }
-            //     )
-            // });
-
-            // cursor.forEach(function(userChatList) {
-            //
-            //     var doc = {
-            //         userId: userChatList.userId,
-            //         newUserChat: newUserChat
-            //     }
-            //
-            //     q.push(doc);
-            //     // userChats.update(
-            //     //     {userId: userChatList.userId},
-            //     //     {"$push": {"chats": newUserChat}}
-            //     // )
-            // });
-            //
-            // q.drain = function() {
-            //     if(cursor.isClosed()) {
-            //         res.json(newMessage);
-            //     }
-            // }
-            //
-            // .then(res.json(newChat))
-            // .catch(res.status(500));
-        // });
-
+    app.put("/api/chat/reset/:id", function(req, res) {
+        var targetChatId = req.params.id;
+        userChats.updateOne(
+            {userId: req.session.user, "chats.chatId": ObjectID(targetChatId)},
+            {"$set": {"chats.$.unseenCount": 0}}
+        ).then(function(info) {
+            if (info.matchedCount === 1) {
+                res.sendStatus(200);
+            }
+            else {
+                res.status(400).send("Did not reset any count");
+            }
+        })
+        .catch(function(err) {
+            res.status(400).send("Error locating user chat to reset");
+        });
     });
 
     app.post("/api/chat/:id", function(req, res) {
-        console.log("received request to add message to chat id of " + req.params.id);
         var targetChatId = req.params.id;
         conversations.findOne({_id: ObjectID(targetChatId)}, function(err, chat) {
             if (chat) {
                 console.log("found a conversation to add to");
-                console.log("the conversation is " + util.inspect(chat, false ,null));
+                console.log("the conversation is " + chat._id);
                 var newMessage = {
                     sender: req.session.user,
                     content: req.body.content,
@@ -185,18 +204,28 @@ module.exports = function(port, db, githubAuthoriser, middleware) {
                 conversations.update(
                     {_id: ObjectID(targetChatId)},
                     {"$push": {"messages": newMessage}}
-                ).then(function(err) {
+                ).then(function(writeResult) {
+                    // console.log("")
+                    // if (writeResult.documents[0].nModified === 0) {
+                    //     return res.status(500);
+                    // }
+                    // else {
+                    //     console.log("num convos modified is " + writeResult.nModified);
+                    // }
                     // console.log("updated and result is " + util.inspect(err, false, null));
+                })
+                .catch(function(err) {
+                    return res.status(500);
                 })
                 // Update the most recent message in current user's chat list
                 // as well as recepients, and increment their unseen counter
 
                 var q = async.queue(function(doc, callback) {
                     userChats.update(
-                        {userId: doc.userId, "chats.chatId": doc.newChat.chatId},
-                        {"$set": {"chats.$": doc.newChat}},
-                        {w: 1}, callback);
-                    }, Infinity);
+                    {userId: doc.userId, "chats.chatId": doc.newChat.chatId},
+                    {"$set": {"chats.$": doc.newChat}},
+                    {w: 1}, callback);
+                }, Infinity);
 
                 var cursor = userChats.find(
                     {chats: { $elemMatch: {chatId: chat._id}}}
@@ -205,17 +234,12 @@ module.exports = function(port, db, githubAuthoriser, middleware) {
                 cursor.forEach(function(userChatList) {
                     var userId = userChatList.userId;
                     var newChats = userChatList.chats.map(function(currentChat) {
-                        console.log("looping through the found user chats");
-                        console.log("current chat id is " + currentChat.chatId);
-                        console.log("new message chat id is " + newMessage.chatId);
-                        console.log("equal? : " + currentChat.chatId.equals(newMessage.chatId));
                         if (currentChat.chatId.equals(newMessage.chatId)) {
                             console.log("found a userChat to add to");
                             currentChat.mostRecentMessage = newMessage;
                             if (newMessage.sender !== userChatList.userId) {
                                 currentChat.unseenCount++;
                             }
-                            console.log("modified current chat within user chats is now " + util.inspect(currentChat, false, null));
                             var newUserChatList = {
                                 userId: userId,
                                 newChat: currentChat
@@ -224,20 +248,14 @@ module.exports = function(port, db, githubAuthoriser, middleware) {
                         }
                         return currentChat;
                     });
-                    // userChats.update(
-                    //     {userId: userId},
-                    //     {"$set": {"chats": newChats}}
-                    // );
                 });
 
                 q.drain = function() {
-                    if(cursor.isClosed()) {
+                    if (cursor.isClosed()) {
                         console.log("drained queue returning");
                         res.json(newMessage);
                     }
                 }
-
-                // res.json(newMessage);
             }
             else {
                 res.sendStatus(404);
@@ -275,15 +293,20 @@ module.exports = function(port, db, githubAuthoriser, middleware) {
             userId: req.session.user
         }, function(err, currentUserChats) {
             if (currentUserChats) {
-                res.json(currentUserChats);
+                res.status(200).json(currentUserChats);
             } else {
                 // Create a new list of chats the user is privy to
                 var newUserChats = {
                     userId: req.session.user,
                     chats: []
                 }
-                userChats.insertOne(newUserChats);
-                res.json(newUserChats);
+                userChats.insertOne(newUserChats)
+                .then(function(info) {
+                    res.status(200).json(newUserChats);
+                })
+                .catch(function(err) {
+                    res.status(500).send(err);
+                })
             }
         });
     });

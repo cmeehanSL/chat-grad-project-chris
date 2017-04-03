@@ -18,19 +18,18 @@ export default class ChatComponent extends React.Component {
         var fetchConversation = actions.fetchConversation;
         var loadParticipantInfo = actions.loadParticipantInfo;
         var otherParticipantIds = conversation.participants.filter(function(participantId) {
-            return (participantId != activeUser._id);
+            return (participantId !== activeUser._id);
         });
         loadParticipantInfo(otherParticipantIds, friendList);
 
-        // if (friend.chatId !== null) {
-            fetchConversation(conversation.chatId);
-        // }
+        fetchConversation(conversation.chatId);
     }
 
     render() {
         var activeUser = this.props.activeUser;
         var conversation = this.props.conversation;
         var mostRecentMessage = conversation.mostRecentMessage;
+        var unseenCount = conversation.unseenCount;
         var timestamp = new Date(mostRecentMessage.timestamp);
         var timeString = (
             ("0" + timestamp.getHours()).slice(-2)   + ":" +
@@ -47,7 +46,12 @@ export default class ChatComponent extends React.Component {
                             </span>
                         )
                     })}
-                    <p>{timeString} &nbsp; {mostRecentMessage.content} {(mostRecentMessage.sender == activeUser._id) ? <span class="glyphicon glyphicon-ok"></span> : null}</p>
+                    <span className="badge">{unseenCount}</span>
+                    <p>{timeString} &nbsp; {mostRecentMessage.content}
+                        {(mostRecentMessage.sender === activeUser._id) ?
+                            <span className="glyphicon glyphicon-ok"></span> :
+                                null}
+                    </p>
                 </span>
             </div>
         );

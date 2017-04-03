@@ -1,4 +1,5 @@
 import axios from "axios";
+// import {Router} from "react-router";
 
 export function openConversation(participants, chatId) {
     return function(dispatch) {
@@ -15,7 +16,9 @@ export function fetchConversation(chatId) {
     return function(dispatch) {
         dispatch({type: "FETCHING_CONVERSATION"});
         axios.get("/api/chat/" + chatId).then(function(chatResponse) {
+            console.log("received the conversation that has id of " + chatResponse.data._id);
             dispatch({type: "RECEIVED_CURRENT_CONVERSATION", payload: chatResponse.data});
+            dispatch(resetUnseenCount(chatResponse.data._id));
         })
         .catch()
     }
@@ -51,6 +54,10 @@ export function createNewConversation(otherParticipants, text) {
                 otherParticipants: otherParticipants
             }
         }).then(function(newChatResponse) {
+            if (newChatResponse.status === 200) {
+                window.location.reload();
+                return;
+            }
             dispatch({type: "CREATED_NEW_CONVERSATION", payload: newChatResponse.data});
             dispatch({type: "RECEIVED_CURRENT_CONVERSATION", payload: newChatResponse.data});
             dispatch(sendMessage(newChatResponse.data._id, text));
@@ -67,6 +74,20 @@ export function closeConversation() {
     }
 }
 
+export function resetUnseenCount(chatId) {
+    return function(dispatch) {
+        dispatch({type: "RESETTING_UNSEEN_COUNT"});
+        console.log("chat id to reset is " + chatId);
+        axios.put("/api/chat/reset/" + chatId).then(function(res) {
+            console.log("res is " + res.status);
+            if (res.status >= 200 && res.status < 300) {
+                dispatch({type: "UNSEEN_COUNT_RESET"});
+                dispatch(getUserChats());
+            }
+        });
+    }
+}
+
 
 export function sendMessage(chatId, text) {
     return function(dispatch) {
@@ -79,14 +100,19 @@ export function sendMessage(chatId, text) {
         })
         .then(function(newMessageResponse) {
             dispatch({type: "SENT_MESSAGE", payload: newMessageResponse.data});
-            axios.get("/api/user-chats").then((userChats) => {
-                console.log("received userChats object of " + userChats.data);
-                dispatch({type: "RECEIVED_UPDATED_CHATS", payload: userChats.data});
-            });
+            dispatch(getUserChats());
         })
         .catch(function() {
             dispatch({type: "SENDING_MESSAGE_FAILED"});
         })
+    }
+}
 
+export function getUserChats() {
+    return function(dispatch) {
+        axios.get("/api/user-chats").then((userChats) => {
+            console.log("received userChats object of " + userChats.data);
+            dispatch({type: "RECEIVED_UPDATED_CHATS", payload: userChats.data});
+        });
     }
 }
