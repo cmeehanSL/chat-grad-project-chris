@@ -2,6 +2,8 @@ var server = require("../server/server");
 var request = require("request");
 var assert = require("chai").assert;
 var sinon = require("sinon");
+var sinonPromise = require("sinon-promise");
+sinonPromise(sinon);
 
 var testPort = 52684;
 var baseUrl = "http://localhost:" + testPort;
@@ -24,6 +26,7 @@ var testGithubUser = {
 };
 var testToken = "123123";
 var testExpiredToken = "987978";
+var testConversationId = "58e268db1ccb4318807a9bd7";
 
 describe("server", function() {
     var cookieJar;
@@ -55,12 +58,24 @@ describe("server", function() {
                 find: sinon.stub(),
                 findOne: sinon.stub(),
                 insertOne: sinon.spy()
+            },
+            userChats: {
+                insertOne: sinon.promise().resolves("info"),
+                findOne: sinon.stub()
+            },
+            conversations: {
+                insertOne: sinon.spy(),
+                findOne: sinon.stub(),
+                update: sinon.promise().resolves("info")
             }
         };
         db = {
             collection: sinon.stub()
         };
         db.collection.withArgs("users").returns(dbCollections.users);
+        db.collection.withArgs("conversations").returns(dbCollections.conversations);
+        db.collection.withArgs("userChats").returns(dbCollections.userChats);
+
 
         githubAuthoriser = {
             authorise: function() {},
@@ -275,6 +290,169 @@ describe("server", function() {
 
                 request({url: requestUrl, jar: cookieJar}, function(error, response) {
                     assert.equal(response.statusCode, 500);
+                    done();
+                });
+            });
+        });
+    });
+    describe("GET /api/user-chats", function() {
+        var requestUrl = baseUrl + "/api/user-chats";
+        // var userChats;
+        // beforeEach(function() {
+        //
+        // });
+        it("returns a 500 if the insertion fails", function(done) {
+            dbCollections.userChats.insertOne = sinon.promise().rejects('info'),
+            authenticateUser(testGithubUser, testToken, function() {
+                dbCollections.userChats.findOne.callsArgWith(1, null, null);
+
+
+                request({url: requestUrl, jar: cookieJar}, function(error, response) {
+                    assert.equal(response.statusCode, 500);
+                    done();
+                });
+            });
+        });
+        it("creates a userChats entry for that user if not already existing", function(done) {
+            authenticateUser(testGithubUser, testToken, function() {
+                dbCollections.userChats.findOne.callsArgWith(1, null, null);
+
+                request({url: requestUrl, jar: cookieJar}, function(error, response) {
+                    assert.equal(response.statusCode, 200);
+                    assert(dbCollections.userChats.insertOne.calledOnce);
+                    assert.deepEqual(dbCollections.userChats.insertOne.firstCall.args[0], {
+                        userId: "bob",
+                        chats: []
+                    });
+                    done();
+                });
+            });
+        });
+        it("returns the userChat object if there already is one", function(done) {
+            var mockUserChats = {
+                userId: testUser._id,
+                chats: []
+            };
+            authenticateUser(testGithubUser, testToken, function() {
+                dbCollections.userChats.findOne.callsArgWith(1, null, mockUserChats);
+                request({url: requestUrl, jar: cookieJar}, function(error, response, body) {
+                    assert.equal(response.statusCode, 200);
+                    assert.deepEqual(JSON.parse(body), {
+                        userId: "bob",
+                        chats: []
+                    });
+                    done();
+                });
+            });
+        });
+    });
+    describe("GET /api/chat/:id", function() {
+        var requestUrl = baseUrl + "/api/chat/" + testConversationId;
+        it("returns a 404 if no such conversation exists", function(done) {
+            authenticateUser(testUser, testToken, function() {
+                dbCollections.conversations.findOne.callsArgWith(1, null, null);
+                request({url: requestUrl, jar: cookieJar}, function(error, response) {
+                    assert.equal(response.statusCode, 404);
+                    done();
+                });
+            });
+        });
+        it("returns the conversation object if such a conversation exists", function(done) {
+            var mockConversation = {
+                _id: "ff72",
+                participants: [testUser._id, testUser2._id],
+                messages: [{content: "hi", timestamp: 3, sender: testUser._id}]
+            };
+            authenticateUser(testUser, testToken, function() {
+                dbCollections.conversations.findOne.callsArgWith(1, null, mockConversation);
+                request({url: requestUrl, jar: cookieJar}, function(error, response, body) {
+                    assert.equal(response.statusCode, 200);
+                    assert.deepEqual(JSON.parse(body), {
+                        _id: "ff72",
+                        participants: [testUser._id, testUser2._id],
+                        messages: [{content: "hi", timestamp: 3, sender: testUser._id}]
+                    });
+                    done();
+                });
+            });
+        });
+    });
+    describe("POST /api/chat/:id", function() {
+        var requestUrl = baseUrl + "/api/chat/" + testConversationId;
+        it("returns a 404 if no such conversation exists", function(done) {
+            authenticateUser(testUser, testToken, function() {
+                dbCollections.conversations.findOne.callsArgWith(1, null, null);
+                request({url: requestUrl, jar: cookieJar}, function(error, response) {
+                    assert.equal(response.statusCode, 404);
+                    done();
+                });
+            });
+        });
+        // it("returns a 500 if conversation fails to push messages", function(done) {
+        //     authenticateUser(testUser, testToken, function() {
+        //         dbCollections.conversations.findOne.callsArgWith(1, null, true);
+        //         dbCollections.conversations.update = sinon.promise().rejects("error");
+        //         dbCollections.userChats.find = sinon.stub();
+        //         sinon.stub(dbCollections.userChats.find, "snapshot");
+        //         request.post({url: requestUrl, jar: cookieJar}, function(error, response) {
+        //             assert.equal(response.statusCode, 500);
+        //             done();
+        //         });
+        //     });
+        // });
+    });
+    describe("POST /api/chat", function(){
+        var requestUrl = baseUrl + "/api/chat";
+        var otherParticipants = sinon.stub();
+        otherParticipants.forEach = sinon.stub();
+        var postData = {
+            otherParticipants: []
+        };
+        var options = {
+            url: requestUrl,
+            jar: cookieJar,
+            method: 'POST',
+            body: postData,
+            json: true,
+        };
+        it("returns a 202 if such a conversation already exists", function(done) {
+            dbCollections.userChats.findOne = sinon.promise().resolves("found a convo");
+            authenticateUser(testGithubUser, testToken, function() {
+                request({url: requestUrl, jar: cookieJar, method: "post"}, function(error, response) {
+                    assert.equal(response.statusCode, 202);
+                    done();
+                });
+            });
+        });
+        it("inserts a conversation if one not already existing", function(done) {
+            dbCollections.conversations.insertOne = sinon.promise().resolves("inserted info");
+            dbCollections.userChats.findOne = sinon.promise().resolves(false);
+            dbCollections.updateMany = sinon.promise().resolves(true);
+            authenticateUser(testGithubUser, testToken, function() {
+                request({url: requestUrl, jar: cookieJar, method: "post"}, function(error, response) {
+                    assert(dbCollections.conversations.insertOne.calledOnce);
+                    assert.deepEqual(dbCollections.conversations.insertOne.firstCall.args[0], {
+                        participants: ["bob"],
+                        messages: [],
+                        _id: undefined
+                    });
+                    // assert(dbCollections.userChats.updateMany.calledOnce);
+                    done();
+                });
+            });
+        });
+        it("updates the user chats with the new conversation when a conversation is inserted", function(done) {
+            dbCollections.conversations.insertOne = sinon.promise().resolves("inserted info");
+            dbCollections.userChats.findOne = sinon.promise().resolves(false);
+            dbCollections.userChats.updateMany = sinon.promise().resolves(true);
+            authenticateUser(testGithubUser, testToken, function() {
+                request({url: requestUrl, jar: cookieJar, method: "post"}, function(error, response, body) {
+                    assert.equal(response.statusCode, 201);
+                    // the json parse gets rid of the undefined id
+                    assert.deepEqual(JSON.parse(body), {
+                        participants: ["bob"],
+                        messages: [],
+                    });
                     done();
                 });
             });

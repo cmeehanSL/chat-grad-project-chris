@@ -54,7 +54,7 @@ export function createNewConversation(otherParticipants, text) {
                 otherParticipants: otherParticipants
             }
         }).then(function(newChatResponse) {
-            if (newChatResponse.status === 200) {
+            if (newChatResponse.status === 202) {
                 window.location.reload();
                 return;
             }

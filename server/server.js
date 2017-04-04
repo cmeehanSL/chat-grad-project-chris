@@ -72,7 +72,7 @@ module.exports = function(port, db, githubAuthoriser, middleware) {
     app.post("/api/chat", function(req, res) {
         var activeUserId = req.session.user;
 
-        var otherParticipants = req.body.otherParticipants;
+        var otherParticipants = req.body.otherParticipants || [];
 
         var participantIds = [activeUserId];
         otherParticipants.forEach(function(participant) {
@@ -97,9 +97,7 @@ module.exports = function(port, db, githubAuthoriser, middleware) {
             if (doc) {
                 // Such a conversation already exists
                 console.log("such a convo already exists");
-                res.sendStatus(200);
-                return;
-                console.log("shouldn't get here");
+                return res.sendStatus(202);
             }
             else {
                 console.log("convo doesn't exist yet");
@@ -107,42 +105,14 @@ module.exports = function(port, db, githubAuthoriser, middleware) {
             }
         })
 
-
-        // // Add it to the database of chats
-        // conversations.insertOne(newChat)
-        // .then(function(doc) {
-        //     newChat._id = doc.insertedId;
-        //     var newUserChat = {
-        //         chatId: newChat._id,
-        //         participants: newChat.participants,
-        //         mostRecentMessage: null,
-        //         unseenCount: 0
-        //     }
-        //     userChats.updateMany(
-        //         {userId: {$in: newUserChat.participants}},
-        //         {"$push": {"chats": newUserChat}}
-        //     )
-        //     .then(function(result) {
-        //         if (result) {
-        //             res.json(newChat);
-        //         }
-        //         else {
-        //             res.sendStatus(500);
-        //         }
-        //     });
-        // })
-        // .catch(function(err) {
-        //     res.sendStatus(500);
-        // });
-
-            //TODO check if such a conversation already exists!
-            // insert the chat id and participants into each of the user's subscribed chat list
     });
 
     function createNewConversation(newChat, res) {
         // Add it to the database of chats
+        console.log(newChat);
         conversations.insertOne(newChat)
         .then(function(doc) {
+            console.log("flagggg 1");
             newChat._id = doc.insertedId;
             var newUserChat = {
                 chatId: newChat._id,
@@ -155,8 +125,10 @@ module.exports = function(port, db, githubAuthoriser, middleware) {
                 {"$push": {"chats": newUserChat}}
             )
             .then(function(result) {
+                console.log("flaggggg 2");
                 if (result) {
                     res.status(201);
+                    console.log("new chat is " + util.inspect(newChat, false,null));
                     res.json(newChat);
                 }
                 else {
@@ -205,17 +177,9 @@ module.exports = function(port, db, githubAuthoriser, middleware) {
                     {_id: ObjectID(targetChatId)},
                     {"$push": {"messages": newMessage}}
                 ).then(function(writeResult) {
-                    // console.log("")
-                    // if (writeResult.documents[0].nModified === 0) {
-                    //     return res.status(500);
-                    // }
-                    // else {
-                    //     console.log("num convos modified is " + writeResult.nModified);
-                    // }
-                    // console.log("updated and result is " + util.inspect(err, false, null));
                 })
                 .catch(function(err) {
-                    return res.status(500);
+                    return res.sendStatus(500);
                 })
                 // Update the most recent message in current user's chat list
                 // as well as recepients, and increment their unseen counter
