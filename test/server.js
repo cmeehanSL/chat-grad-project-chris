@@ -457,5 +457,26 @@ describe("server", function() {
                 });
             });
         });
+        it("sends a 500 if the userChats are not updated", function(done) {
+            dbCollections.conversations.insertOne = sinon.promise().resolves("inserted info");
+            dbCollections.userChats.findOne = sinon.promise().resolves(false);
+            dbCollections.userChats.updateMany = sinon.promise().resolves(false);
+            authenticateUser(testGithubUser, testToken, function() {
+                request({url: requestUrl, jar: cookieJar, method: "post"}, function(error, response) {
+                    assert.equal(response.statusCode, 500);
+                    done();
+                });
+            });
+        });
+        it("sends a 500 if not inserted into the conversations", function(done) {
+            dbCollections.conversations.insertOne = sinon.promise().rejects("not inserted");
+            dbCollections.userChats.findOne = sinon.promise().resolves(false);
+            authenticateUser(testGithubUser, testToken, function() {
+                request({url: requestUrl, jar: cookieJar, method: "post"}, function(error, response) {
+                    assert.equal(response.statusCode, 500);
+                    done();
+                });
+            });
+        });
     });
 });

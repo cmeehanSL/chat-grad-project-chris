@@ -109,10 +109,8 @@ module.exports = function(port, db, githubAuthoriser, middleware) {
 
     function createNewConversation(newChat, res) {
         // Add it to the database of chats
-        console.log(newChat);
         conversations.insertOne(newChat)
         .then(function(doc) {
-            console.log("flagggg 1");
             newChat._id = doc.insertedId;
             var newUserChat = {
                 chatId: newChat._id,
@@ -125,10 +123,8 @@ module.exports = function(port, db, githubAuthoriser, middleware) {
                 {"$push": {"chats": newUserChat}}
             )
             .then(function(result) {
-                console.log("flaggggg 2");
                 if (result) {
                     res.status(201);
-                    console.log("new chat is " + util.inspect(newChat, false,null));
                     res.json(newChat);
                 }
                 else {
@@ -177,56 +173,58 @@ module.exports = function(port, db, githubAuthoriser, middleware) {
                     {_id: ObjectID(targetChatId)},
                     {"$push": {"messages": newMessage}}
                 ).then(function(writeResult) {
+                    console.log("calling update user chat lists");
+                    updateUsersChatLists(newMessage, res);
                 })
                 .catch(function(err) {
                     return res.sendStatus(500);
                 })
-                // Update the most recent message in current user's chat list
-                // as well as recepients, and increment their unseen counter
-
-                var q = async.queue(function(doc, callback) {
-                    userChats.update(
-                    {userId: doc.userId, "chats.chatId": doc.newChat.chatId},
-                    {"$set": {"chats.$": doc.newChat}},
-                    {w: 1}, callback);
-                }, Infinity);
-
-                var cursor = userChats.find(
-                    {chats: { $elemMatch: {chatId: chat._id}}}
-                ).snapshot();
-
-                cursor.forEach(function(userChatList) {
-                    var userId = userChatList.userId;
-                    var newChats = userChatList.chats.map(function(currentChat) {
-                        if (currentChat.chatId.equals(newMessage.chatId)) {
-                            console.log("found a userChat to add to");
-                            currentChat.mostRecentMessage = newMessage;
-                            if (newMessage.sender !== userChatList.userId) {
-                                currentChat.unseenCount++;
-                            }
-                            var newUserChatList = {
-                                userId: userId,
-                                newChat: currentChat
-                            }
-                            q.push(newUserChatList);
-                        }
-                        return currentChat;
-                    });
-                });
-
-                q.drain = function() {
-                    if (cursor.isClosed()) {
-                        console.log("drained queue returning");
-                        res.json(newMessage);
-                    }
-                }
             }
             else {
                 res.sendStatus(404);
             }
         })
 
-    })
+    });
+
+    function updateUsersChatLists(newMessage, res) {
+
+        userChats.find({chats: { $elemMatch: {chatId: newMessage.chatId}}})
+        .forEach(function(userChatInfo) {
+
+            // Only respond once the Active User's chats have been updated
+            // (the others can continue updating in the background)
+            if(userChatInfo.userId === newMessage.sender) {
+                userChats.update(
+                    {userId: userChatInfo.userId, "chats.chatId": newMessage.chatId},
+                    {"$set": {"chats.$.mostRecentMessage": newMessage}}
+                )
+                .then(function(info) {
+                    if (info) {
+                        console.log("updated active user chats so responding with json");
+                        res.json(newMessage);
+                    }
+                    else {
+                        console.log("not updated active user chats");
+                        res.sendStatus(500);
+                    }
+                });
+            }
+            else {
+                // Increment the other users unseen counts
+                console.log("attempting to increment another user's unseencount");
+                userChats.update(
+                    {userId: userChatInfo.userId, "chats.chatId": newMessage.chatId},
+                    {
+                        "$set": {"chats.$.mostRecentMessage": newMessage},
+                        "$inc": {"chats.$.unseenCount": 1}
+                    }
+                ).then(function(info) {
+                    console.log("updated other user chat so not responding");
+                })
+            }
+        });
+    }
 
     app.get("/api/chat/:id", function(req, res) {
         var targetChatId = req.params.id;
