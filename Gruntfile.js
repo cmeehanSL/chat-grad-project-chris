@@ -121,7 +121,7 @@ module.exports = function(grunt) {
 
     grunt.registerTask("check", ["jshint", "jscs"]);
     grunt.registerTask("escheck", ["eslint"]);
-    grunt.registerTask("test", ["mochaTest", "mocha_istanbul", "istanbul_report",
+    grunt.registerTask("test", ["escheck", "mochaTest", "mocha_istanbul", "istanbul_report",
         "istanbul_check_coverage"]);
     grunt.registerTask("default", "test");
 };

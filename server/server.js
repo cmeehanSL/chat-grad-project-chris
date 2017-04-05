@@ -73,9 +73,10 @@ module.exports = function(port, db, githubAuthoriser, middleware) {
         var activeUserId = req.session.user;
 
         var otherParticipants = req.body.otherParticipants || [];
+        var participants = otherParticipants.concat({id: activeUserId});
 
-        var participantIds = [activeUserId];
-        otherParticipants.forEach(function(participant) {
+        var participantIds = [];
+        participants.forEach(function(participant) {
             participantIds.push(participant.id);
         });
 
@@ -181,6 +182,7 @@ module.exports = function(port, db, githubAuthoriser, middleware) {
                 })
             }
             else {
+                console.log("sending the 404");
                 res.sendStatus(404);
             }
         })
@@ -194,7 +196,7 @@ module.exports = function(port, db, githubAuthoriser, middleware) {
 
             // Only respond once the Active User's chats have been updated
             // (the others can continue updating in the background)
-            if(userChatInfo.userId === newMessage.sender) {
+            if (userChatInfo.userId === newMessage.sender) {
                 userChats.update(
                     {userId: userChatInfo.userId, "chats.chatId": newMessage.chatId},
                     {"$set": {"chats.$.mostRecentMessage": newMessage}}
@@ -202,7 +204,7 @@ module.exports = function(port, db, githubAuthoriser, middleware) {
                 .then(function(info) {
                     if (info) {
                         console.log("updated active user chats so responding with json");
-                        res.json(newMessage);
+                        res.status(200).json(newMessage);
                     }
                     else {
                         console.log("not updated active user chats");
@@ -219,8 +221,9 @@ module.exports = function(port, db, githubAuthoriser, middleware) {
                         "$set": {"chats.$.mostRecentMessage": newMessage},
                         "$inc": {"chats.$.unseenCount": 1}
                     }
-                ).then(function(info) {
-                    console.log("updated other user chat so not responding");
+                )
+                .catch(function(err) {
+                    res.sendStatus(500);
                 })
             }
         });

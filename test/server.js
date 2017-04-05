@@ -61,7 +61,8 @@ describe("server", function() {
             },
             userChats: {
                 insertOne: sinon.promise().resolves("info"),
-                findOne: sinon.stub()
+                findOne: sinon.stub(),
+                find: sinon.stub()
             },
             conversations: {
                 insertOne: sinon.spy(),
@@ -379,42 +380,112 @@ describe("server", function() {
     });
     describe("POST /api/chat/:id", function() {
         var requestUrl = baseUrl + "/api/chat/" + testConversationId;
+        var userChatsList;
+        beforeEach(function() {
+        });
         it("returns a 404 if no such conversation exists", function(done) {
             authenticateUser(testUser, testToken, function() {
-                dbCollections.conversations.findOne.callsArgWith(1, null, null);
-                request({url: requestUrl, jar: cookieJar}, function(error, response) {
+                dbCollections.conversations.findOne.callsArgWith(1, null, false);
+                request.post({url: requestUrl, jar: cookieJar}, function(error, response) {
                     assert.equal(response.statusCode, 404);
                     done();
                 });
             });
         });
-        // it("returns a 500 if conversation fails to push messages", function(done) {
-        //     authenticateUser(testUser, testToken, function() {
-        //         dbCollections.conversations.findOne.callsArgWith(1, null, true);
-        //         dbCollections.conversations.update = sinon.promise().rejects("error");
-        //         dbCollections.userChats.find = sinon.stub();
-        //         sinon.stub(dbCollections.userChats.find, "snapshot");
-        //         request.post({url: requestUrl, jar: cookieJar}, function(error, response) {
-        //             assert.equal(response.statusCode, 500);
-        //             done();
-        //         });
-        //     });
-        // });
+        it("calls conversation update", function(done) {
+
+            dbCollections.conversations.findOne.callsArgWith(1, null, true);
+            dbCollections.conversations.update = sinon.promise().resolves("updated");
+            authenticateUser(testUser, testToken, function() {
+
+                request.post({url: requestUrl, jar: cookieJar}, function(error, response) {
+                    assert(dbCollections.conversations.update.calledOnce);
+                    done();
+                });
+            });
+        });
+        it("updates the active user's user chats", function(done) {
+            userChatsList = {
+                forEach: sinon.stub()
+            };
+            dbCollections.userChats.find.returns(userChatsList);
+
+            dbCollections.conversations.findOne.callsArgWith(1, null, true);
+            dbCollections.conversations.update = sinon.promise().resolves("updated");
+            dbCollections.userChats.update = sinon.promise().resolves("info");
+            userChatsList.forEach.callsArgWith(0, {
+                userId: testGithubUser.login
+            });
+            authenticateUser(testGithubUser, testToken, function() {
+                request.post({url: requestUrl, jar: cookieJar}, function(error, response, body) {
+                    assert(dbCollections.userChats.find.calledOnce);
+                    assert(userChatsList.forEach.calledOnce);
+                    assert(dbCollections.userChats.update.calledOnce);
+                    assert.equal(response.statusCode, 200);
+                    assert.deepEqual(JSON.parse(body),
+                        {
+                            sender: "bob"
+                        }
+                    )
+                    done();
+                });
+            });
+        });
+        it("returns 500 if can't update active user chats", function(done) {
+            userChatsList = {
+                forEach: sinon.stub()
+            };
+            dbCollections.userChats.find.returns(userChatsList);
+
+            dbCollections.conversations.findOne.callsArgWith(1, null, true);
+            dbCollections.conversations.update = sinon.promise().resolves("updated");
+            dbCollections.userChats.update = sinon.promise().resolves(false);
+            userChatsList.forEach.callsArgWith(0, {
+                userId: testGithubUser.login
+            });
+            authenticateUser(testGithubUser, testToken, function() {
+                request.post({url: requestUrl, jar: cookieJar}, function(error, response) {
+                    assert(dbCollections.userChats.find.calledOnce);
+                    assert(userChatsList.forEach.calledOnce);
+                    assert(dbCollections.userChats.update.calledOnce);
+                    assert.equal(response.statusCode, 500);
+                    done();
+                });
+            });
+        });
+        it("ateempts to update other users user chats, responds with 500 if can't", function(done) {
+            userChatsList = {
+                forEach: sinon.stub()
+            };
+            dbCollections.userChats.find.returns(userChatsList);
+            dbCollections.conversations.findOne.callsArgWith(1, null, true);
+            dbCollections.conversations.update = sinon.promise().resolves("updated");
+            dbCollections.userChats.update = sinon.promise().rejects("error");
+            userChatsList.forEach.callsArgWith(0, {
+                userId: testUser2._id
+            });
+            authenticateUser(testGithubUser, testToken, function() {
+                request.post({url: requestUrl, jar: cookieJar}, function(error, response) {
+                    assert(dbCollections.userChats.update.calledOnce);
+                    assert.equal(response.statusCode, 500);
+                    done();
+                });
+            });
+        });
     });
     describe("POST /api/chat", function(){
         var requestUrl = baseUrl + "/api/chat";
-        var otherParticipants = sinon.stub();
-        otherParticipants.forEach = sinon.stub();
-        var postData = {
-            otherParticipants: []
-        };
-        var options = {
-            url: requestUrl,
-            jar: cookieJar,
-            method: 'POST',
-            body: postData,
-            json: true,
-        };
+        // otherParticipants.forEach = sinon.stub();
+        // var postData = {
+        //     otherParticipants: []
+        // };
+        // var options = {
+        //     url: requestUrl,
+        //     jar: cookieJar,
+        //     method: 'POST',
+        //     body: postData,
+        //     json: true,
+        // };
         it("returns a 202 if such a conversation already exists", function(done) {
             dbCollections.userChats.findOne = sinon.promise().resolves("found a convo");
             authenticateUser(testGithubUser, testToken, function() {
@@ -474,6 +545,40 @@ describe("server", function() {
             authenticateUser(testGithubUser, testToken, function() {
                 request({url: requestUrl, jar: cookieJar, method: "post"}, function(error, response) {
                     assert.equal(response.statusCode, 500);
+                    done();
+                });
+            });
+        });
+    });
+    describe("PUT /api/chat/reset/:id", function() {
+        var requestUrl = baseUrl + "/api/chat/reset/" + testConversationId;
+        it("returns 400 if error updating", function(done) {
+            dbCollections.userChats.updateOne = sinon.promise().rejects("error");
+            authenticateUser(testGithubUser, testToken, function() {
+                request({url: requestUrl, jar: cookieJar, method: "put"}, function(error, response) {
+                    assert.equal(response.statusCode, 400);
+                    done();
+                });
+            });
+        });
+        it("returns 400 if not the count not reset", function(done) {
+            dbCollections.userChats.updateOne = sinon.promise().resolves({
+                matchedCount: 0
+            });
+            authenticateUser(testGithubUser, testToken, function() {
+                request({url: requestUrl, jar: cookieJar, method: "put"}, function(error, response) {
+                    assert.equal(response.statusCode, 400);
+                    done();
+                });
+            });
+        });
+        it("returns 200 if the updated count is 1", function(done) {
+            dbCollections.userChats.updateOne = sinon.promise().resolves({
+                matchedCount: 1
+            });
+            authenticateUser(testGithubUser, testToken, function() {
+                request({url: requestUrl, jar: cookieJar, method: "put"}, function(error, response) {
+                    assert.equal(response.statusCode, 200);
                     done();
                 });
             });
