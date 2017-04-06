@@ -26,6 +26,13 @@ function mapDispatchToProps(dispatch) {
 
 @connect(mapStateToProps, mapDispatchToProps)
 export default class HomeComponent extends React.Component {
+
+    componentDidMount() {
+        this.props.actions.initialiseSocket();
+
+        // this.props.resetUnseenCount(this.props.currentConversation.chatId);
+    }
+
     render() {
         const {
             activeUser, associativeFriendList,

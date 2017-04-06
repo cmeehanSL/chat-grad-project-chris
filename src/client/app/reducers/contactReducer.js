@@ -78,6 +78,10 @@ export default function reducer(
                 associativeFriendList: associativeFriendList
             }
         }
+        case "FRIEND_CREATED_CONVERSATION": {
+            break;
+
+        }
 
     }
     return state;

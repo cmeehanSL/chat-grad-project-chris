@@ -99,6 +99,27 @@ export default function reducer(
                 }
             }
         }
+        case "RECEIVED_MESSAGE": {
+            var newMessage = action.payload;
+            var newMessageList = state.currentConversation.messages.slice();
+            console.log("is it this chat "+ (newMessage.chatId == state.currentConversation.chatId));
+            if (newMessage.chatId == state.currentConversation.chatId) {
+                newMessageList.concat(newMessage);
+            }
+            return {
+                ...state,
+                currentConversation: {
+                    ...state.currentConversation,
+                    messages: newMessageList
+                }
+            }
+        }
+        case "FRIEND_CREATED_CONVERSATION": {
+            // set the current conversation to this new conversation if
+            // the new conversation participants is exactly the same
+            // as the current conversation participants ( just one other participant )
+            break;
+        }
     }
     return state;
 }

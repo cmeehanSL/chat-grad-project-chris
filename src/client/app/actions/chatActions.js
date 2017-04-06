@@ -116,3 +116,46 @@ export function getUserChats() {
         });
     }
 }
+
+export function initialiseSocket() {
+    return function(dispatch) {
+        dispatch({type: "INITIALIZING_SOCKET"});
+        var rawSocket = new WebSocket(`ws://${location.host}`);
+        rawSocket.onopen = () => {
+            console.log("web socket connection established");
+            rawSocket.send("hello there friend");
+        }
+        rawSocket.onmessage = (message) => {
+            console.log("HIIIIIIIIIII");
+            console.log("recieved message on the front end here of " + message.data);
+            dispatch(handleSocketMessage(message));
+        }
+        rawSocket.onclose = () => {
+            rawSocket.close();
+        }
+        window.beforeunload = function() {
+            rawSocket.onclose = function() {};
+            rawSocket.close();
+        }
+        dispatch({type: "SOCKET_INITIALIZED", payload: rawSocket});
+    }
+}
+
+
+
+export function handleSocketMessage(message) {
+    return function(dispatch) {
+        console.log("")
+        var data = JSON.parse(message.data);
+        switch (data.type) {
+            case "LOGGED_IN": {
+                break;
+            }
+            case "RECEIVED_MESSAGE": {
+                dispatch(getUserChats());
+                dispatch({type: "RECEIVED_MESSAGE", payload: data.content});
+                break;
+            }
+        }
+    }
+}

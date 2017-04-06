@@ -1,9 +1,15 @@
 var express = require("express");
 var cookieParser = require("cookie-parser");
+var cookie = require("cookie");
 var bodyParser = require("body-parser");
 var ObjectID = require("mongodb").ObjectID;
 var util = require("util");
 var async = require("async");
+
+const url = require("url");
+const http = require("http");
+const WebSocket = require("ws");
+
 
 module.exports = function(port, db, githubAuthoriser, middleware) {
     var app = express();
@@ -18,6 +24,7 @@ module.exports = function(port, db, githubAuthoriser, middleware) {
 
     var users = db.collection("users");
     var sessions = {};
+    var userSockets = {};
     var userChats = db.collection("userChats");
     var conversations = db.collection("conversations");
 
@@ -38,6 +45,7 @@ module.exports = function(port, db, githubAuthoriser, middleware) {
                     sessions[token] = {
                         user: githubUser.login
                     };
+                    userSockets[githubUser.login] = null;
                     res.cookie("sessionToken", token);
                     res.header("Location", "/");
                     res.sendStatus(302);
@@ -97,11 +105,11 @@ module.exports = function(port, db, githubAuthoriser, middleware) {
         ).then(function(doc) {
             if (doc) {
                 // Such a conversation already exists
-                console.log("such a convo already exists");
+                // console.log("such a convo already exists");
                 return res.sendStatus(202);
             }
             else {
-                console.log("convo doesn't exist yet");
+                // console.log("convo doesn't exist yet");
                 createNewConversation(newChat, res);
             }
         })
@@ -161,8 +169,8 @@ module.exports = function(port, db, githubAuthoriser, middleware) {
         var targetChatId = req.params.id;
         conversations.findOne({_id: ObjectID(targetChatId)}, function(err, chat) {
             if (chat) {
-                console.log("found a conversation to add to");
-                console.log("the conversation is " + chat._id);
+                // console.log("found a conversation to add to");
+                // console.log("the conversation is " + chat._id);
                 var newMessage = {
                     sender: req.session.user,
                     content: req.body.content,
@@ -174,7 +182,7 @@ module.exports = function(port, db, githubAuthoriser, middleware) {
                     {_id: ObjectID(targetChatId)},
                     {"$push": {"messages": newMessage}}
                 ).then(function(writeResult) {
-                    console.log("calling update user chat lists");
+                    // console.log("calling update user chat lists");
                     updateUsersChatLists(newMessage, res);
                 })
                 .catch(function(err) {
@@ -182,7 +190,7 @@ module.exports = function(port, db, githubAuthoriser, middleware) {
                 })
             }
             else {
-                console.log("sending the 404");
+                // console.log("sending the 404");
                 res.sendStatus(404);
             }
         })
@@ -203,7 +211,7 @@ module.exports = function(port, db, githubAuthoriser, middleware) {
                 )
                 .then(function(info) {
                     if (info) {
-                        console.log("updated active user chats so responding with json");
+                        // console.log("updated active user chats so responding with json");
                         res.status(200).json(newMessage);
                     }
                     else {
@@ -214,7 +222,7 @@ module.exports = function(port, db, githubAuthoriser, middleware) {
             }
             else {
                 // Increment the other users unseen counts
-                console.log("attempting to increment another user's unseencount");
+                // console.log("attempting to increment another user's unseencount");
                 userChats.update(
                     {userId: userChatInfo.userId, "chats.chatId": newMessage.chatId},
                     {
@@ -222,11 +230,27 @@ module.exports = function(port, db, githubAuthoriser, middleware) {
                         "$inc": {"chats.$.unseenCount": 1}
                     }
                 )
+                .then(function(info) {
+                    notifyParticipant(userChatInfo.userId, newMessage);
+                })
                 .catch(function(err) {
+                    console.log("caught error in updating");
                     res.sendStatus(500);
                 })
             }
         });
+    }
+
+    function notifyParticipant(userId, newMessage) {
+        var userSocket = userSockets[userId];
+        console.log("the socket to send to is " + userSocket);
+        if(userSocket) {
+            console.log("attempting to send to the socket of user " + userId);
+            userSocket.send(JSON.stringify({
+                type: "RECEIVED_MESSAGE",
+                content: newMessage
+            }));
+        }
     }
 
     app.get("/api/chat/:id", function(req, res) {
@@ -295,5 +319,44 @@ module.exports = function(port, db, githubAuthoriser, middleware) {
         });
     });
 
-    return app.listen(port);
+    app.use(function(req, res) {
+        res.send({msg: "hello"});
+    });
+
+    const server = http.createServer(app);
+    const wss = new WebSocket.Server({server});
+
+
+    // console.log("wss is " + util.inspect(wss, false, null));
+
+    wss.on('connection', function connection(ws) {
+        console.log("connected to socket");
+        const location = url.parse(ws.upgradeReq.url, true);
+
+        var receivedCookies = ws.upgradeReq.headers.cookie;
+        var parsedCookies = cookie.parse(receivedCookies);
+        console.log("session token is " + parsedCookies.sessionToken);
+        var userId = sessions[parsedCookies.sessionToken].user;
+
+        userSockets[userId] = ws;
+        // ws.send("something");
+
+        console.log(Object.keys(userSockets));
+
+        ws.on('message', function incoming(message) {
+            console.log("received: %s", message);
+            // for(var key in userSockets) {
+            //     userSockets[key].send("meeee");
+            // }
+        });
+
+        ws.on('close', function close() {
+            userSockets[userId] = null;
+            console.log("socket connection closed");
+        });
+
+    })
+
+
+    return server.listen(port);
 };
