@@ -40,6 +40,24 @@ export default function reducer(
                     associativeFriendList: associativeFriendList,
                 }
             }
+            break;
+        }
+        case "RECEIVED_NEW_CONVERSATION": {
+            var chatId = action.payload._id;
+            var participants = action.payload.participants;
+            var userId = state.activeUserId;
+
+            if (participants.length === 2) {
+                var friendId = (participants[0] !== userId) ? participants[0] : participants[1];
+                var associativeFriendList = JSON.parse(JSON.stringify(state.associativeFriendList));
+                console.log("copied associativeFriendList and adding chatId " + chatId + " to friend: " + friendId);
+                var friend = associativeFriendList[friendId];
+                friend.chatId = chatId;
+                return {
+                    ...state,
+                    associativeFriendList: associativeFriendList,
+                }
+            }
         }
         case "RECEIVED_USERS": {
             var friendList = action.payload;

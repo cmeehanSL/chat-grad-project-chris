@@ -46,8 +46,8 @@ export default class ChatComponent extends React.Component {
                             </span>
                         )
                     })}
-                    <span className="badge">{unseenCount}</span>
-                    <p>{timeString} &nbsp; {mostRecentMessage.content}
+                    {unseenCount > 0 ? <span className="badge">{unseenCount}</span> : null}
+                    <p>{timeString} &nbsp; {mostRecentMessage.content} &nbsp;
                         {(mostRecentMessage.sender === activeUser._id) ?
                             <span className="glyphicon glyphicon-ok"></span> :
                                 null}

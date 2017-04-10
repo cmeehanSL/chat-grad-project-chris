@@ -19,6 +19,7 @@ export function fetchConversation(chatId) {
             console.log("received the conversation that has id of " + chatResponse.data._id);
             dispatch({type: "RECEIVED_CURRENT_CONVERSATION", payload: chatResponse.data});
             dispatch(resetUnseenCount(chatResponse.data._id));
+            dispatch({type:"UNSEEN_COUNT_RESET_CLIENT", payload: chatId});
         })
         .catch()
     }
@@ -79,10 +80,10 @@ export function resetUnseenCount(chatId) {
         dispatch({type: "RESETTING_UNSEEN_COUNT"});
         console.log("chat id to reset is " + chatId);
         axios.put("/api/chat/reset/" + chatId).then(function(res) {
-            console.log("res is " + res.status);
+            console.log("reset result is " + res.status);
             if (res.status >= 200 && res.status < 300) {
-                dispatch({type: "UNSEEN_COUNT_RESET"});
-                dispatch(getUserChats());
+                dispatch({type: "UNSEEN_COUNT_RESET_SERVER"});
+                // dispatch(getUserChats());
             }
         });
     }
@@ -100,7 +101,7 @@ export function sendMessage(chatId, text) {
         })
         .then(function(newMessageResponse) {
             dispatch({type: "SENT_MESSAGE", payload: newMessageResponse.data});
-            dispatch(getUserChats());
+            // dispatch(getUserChats());
         })
         .catch(function() {
             dispatch({type: "SENDING_MESSAGE_FAILED"});
@@ -126,8 +127,6 @@ export function initialiseSocket() {
             rawSocket.send("hello there friend");
         }
         rawSocket.onmessage = (message) => {
-            console.log("HIIIIIIIIIII");
-            console.log("recieved message on the front end here of " + message.data);
             dispatch(handleSocketMessage(message));
         }
         rawSocket.onclose = () => {
@@ -141,8 +140,6 @@ export function initialiseSocket() {
     }
 }
 
-
-
 export function handleSocketMessage(message) {
     return function(dispatch) {
         console.log("")
@@ -152,8 +149,12 @@ export function handleSocketMessage(message) {
                 break;
             }
             case "RECEIVED_MESSAGE": {
-                dispatch(getUserChats());
+                // dispatch(getUserChats());
                 dispatch({type: "RECEIVED_MESSAGE", payload: data.content});
+                break;
+            }
+            case "RECEIVED_NEW_CONVERSATION": {
+                dispatch({type: "RECEIVED_NEW_CONVERSATION", payload: data.content});
                 break;
             }
         }

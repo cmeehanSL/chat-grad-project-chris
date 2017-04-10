@@ -135,6 +135,7 @@ module.exports = function(port, db, githubAuthoriser, middleware) {
                 if (result) {
                     res.status(201);
                     res.json(newChat);
+                    notifyOfNewConversation(newChat);
                 }
                 else {
                     res.sendStatus(500);
@@ -144,7 +145,22 @@ module.exports = function(port, db, githubAuthoriser, middleware) {
         .catch(function(err) {
             res.sendStatus(500);
         });
+    }
 
+    function notifyOfNewConversation(newChat) {
+        var participants = newChat.participants;
+
+        participants.forEach(function(userId) {
+            var userSocket = userSockets[userId];
+            console.log("the socket to send to is " + userSocket);
+            if(userSocket) {
+                console.log("attempting to send to the socket of user " + userId);
+                userSocket.send(JSON.stringify({
+                    type: "RECEIVED_NEW_CONVERSATION",
+                    content: newChat
+                }));
+            }
+        });
     }
 
     app.put("/api/chat/reset/:id", function(req, res) {

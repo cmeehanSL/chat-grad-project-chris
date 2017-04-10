@@ -1,15 +1,23 @@
 export default function reducer(
     state = {
         sendingMessage: false,
-        conversations: [],
+        activeUserId: null,
+        associativeConversations: {},
         currentConversation: {
             chatId: null,
             messages: [],
-            participants: null
+            participants: [],
+            toResetUnseenCount: false,
         }
     },
     action) {
     switch (action.type) {
+        case "LOGIN_SUCCESSFUL": {
+            return {
+                ...state,
+                activeUserId: action.payload._id
+            }
+        }
         case "OPENING_CONVERSATION": {
             var chatId = action.payload.chatId;
             var participants = action.payload.participants;
@@ -23,16 +31,27 @@ export default function reducer(
                 }
             }
         }
+        // THIS SHOULD BE CHANGED TO RECEIVED INITIAL CHATS THEN ONLY update
+        // the associativeConversations as necessary when new one arrives etc
         case "RECEIVED_UPDATED_CHATS": {
             // var userId = state.activeUserId;
             var conversations = action.payload.chats;
+            var associativeConversations = {};
+
+            // BUILD ASSOCIATIVE array
+            conversations.forEach(function(conversation) {
+                associativeConversations[conversation.chatId] = {
+                    ...conversation
+                }
+            });
+
 
             // TODO ALSO add the actual contact details (taken from the associative
             // array) and put them into the chat List array (for when adding the list
             // of chat components)
             return {
                 ...state,
-                conversations: conversations,
+                associativeConversations: associativeConversations
             }
         }
         case "LOADING_PARTICIPANT_INFO": {
@@ -57,7 +76,7 @@ export default function reducer(
                 currentConversation: {
                     chatId: null,
                     messages: [],
-                    participants: null
+                    participants: []
                 }
             }
         }
@@ -76,23 +95,81 @@ export default function reducer(
         case "CREATED_NEW_CONVERSATION": {
             var chatId = action.payload._id;
             var participants = action.payload.participants;
-            // Add the new chat to the user's conversations so that chat components can be re-rendered
-            // NOTE This will already be added to the User's chats on the server
-            var conversations = state.conversations.concat({
+            var associativeConversations = JSON.parse(JSON.stringify(state.associativeConversations));
+            associativeConversations[chatId] = {
                 chatId: chatId,
                 participants: participants
-            });
+            };
+            // Add the new chat to the user's conversations so that chat components can be re-rendered
+            // NOTE This will already be added to the User's chats on the server
             return {
                 ...state,
-                conversations: conversations
+                associativeConversations: associativeConversations
+            }
+        }
+        case "RECEIVED_NEW_CONVERSATION": {
+            var chatId = action.payload._id;
+            var participants = action.payload.participants;
+            var userId = state.activeUserId;
+            var currentConversation = state.currentConversation;
+            var newCurrentChatId = currentConversation.chatId;
+
+            var associativeConversations = JSON.parse(JSON.stringify(state.associativeConversations));
+            associativeConversations[chatId] = {
+                chatId: chatId,
+                participants: participants
+            };
+
+            if (participants.length === 2) {
+                console.log("participants length is 2");
+                if(currentConversation.chatId == null && currentConversation.participants.length == 1) {
+                    console.log("the current conversation should be this one so refreshing");
+                    var friendId = (participants[0] !== userId) ? participants[0] : participants[1];
+                    if (friendId === currentConversation.participants[0].id) {
+                        console.log("for real here");
+                        newCurrentChatId = chatId;
+                    }
+                }
+            }
+            return {
+                ...state,
+                associativeConversations: associativeConversations,
+                currentConversation: {
+                    ...state.currentConversation,
+                    chatId: newCurrentChatId
+                }
+            }
+        }
+        case "UNSEEN_COUNT_RESET_CLIENT": {
+            var chatId = action.payload;
+            var associativeConversations = JSON.parse(JSON.stringify(state.associativeConversations));
+            associativeConversations[chatId].unseenCount = 0;
+
+            return {
+                ...state,
+                associativeConversations: associativeConversations
+            }
+        }
+        case "UNSEEN_COUNT_RESET_SERVER": {
+            return {
+                ...state,
+                currentConversation: {
+                    ...state.currentConversation,
+                    toResetUnseenCount: false
+                }
             }
         }
         case "SENT_MESSAGE": {
             var newMessage = action.payload;
             var oldMessageList = state.currentConversation.messages;
             var newMessageList = oldMessageList.concat(newMessage);
+
+            var associativeConversations = JSON.parse(JSON.stringify(state.associativeConversations));
+            associativeConversations[newMessage.chatId].mostRecentMessage = newMessage;
+
             return {
                 ...state,
+                associativeConversations: associativeConversations,
                 currentConversation: {
                     ...state.currentConversation,
                     messages: newMessageList
@@ -101,16 +178,35 @@ export default function reducer(
         }
         case "RECEIVED_MESSAGE": {
             var newMessage = action.payload;
-            var newMessageList = state.currentConversation.messages.slice();
-            console.log("is it this chat "+ (newMessage.chatId == state.currentConversation.chatId));
+            var oldMessageList = state.currentConversation.messages.slice();
+            var newMessageList;
+            var associativeConversations = JSON.parse(JSON.stringify(state.associativeConversations));
+            associativeConversations[newMessage.chatId].mostRecentMessage = newMessage;
+
             if (newMessage.chatId == state.currentConversation.chatId) {
-                newMessageList.concat(newMessage);
+                newMessageList = oldMessageList.concat(newMessage);
+                return {
+                    ...state,
+                    associativeConversations: associativeConversations,
+                    currentConversation: {
+                        ...state.currentConversation,
+                        messages: newMessageList,
+                        toResetUnseenCount: true
+                    }
+                }
             }
-            return {
-                ...state,
-                currentConversation: {
-                    ...state.currentConversation,
-                    messages: newMessageList
+            else {
+                console.log("incrementing unseen count");
+                newMessageList = oldMessageList;
+                associativeConversations[newMessage.chatId].unseenCount += 1;
+                return {
+                    ...state,
+                    associativeConversations: associativeConversations,
+                    currentConversation: {
+                        ...state.currentConversation,
+                        toResetUnseenCount: false
+                    }
+
                 }
             }
         }

@@ -14,13 +14,16 @@ export default class ConversationComponent extends React.Component {
 
     componentDidMount() {
         this.scrollToBottom();
+        console.log("did mount");
         // this.props.resetUnseenCount(this.props.currentConversation.chatId);
     }
 
     componentDidUpdate() {
         this.scrollToBottom();
-        console.log("current convo is " + this.props.currentConversation.chatId);
-        // this.props.resetUnseenCount(this.props.currentConversation.chatId);
+        console.log("UPDATED: now current convo is " + this.props.currentConversation.chatId);
+        if (this.props.currentConversation.toResetUnseenCount) {
+            this.props.resetUnseenCount(this.props.currentConversation.chatId);
+        }
     }
 
     scrollToBottom = () => {

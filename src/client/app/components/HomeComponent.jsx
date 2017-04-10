@@ -14,7 +14,7 @@ function mapStateToProps(state) {
         associativeFriendList: state.contactReducer.associativeFriendList,
         currentConversation: state.chatReducer.currentConversation,
         listingContacts: state.contactReducer.listingContacts,
-        conversations: state.chatReducer.conversations
+        conversations: state.chatReducer.associativeConversations
     };
 }
 
@@ -39,7 +39,7 @@ export default class HomeComponent extends React.Component {
             currentConversation, listingContacts,
             actions, conversations
         } = this.props;
-        var inConversation = (this.props.currentConversation.participants !== null);
+        var inConversation = (this.props.currentConversation.participants.length > 0);
         return (
             <div id="mainWindow">
                 <div id="contactBar">

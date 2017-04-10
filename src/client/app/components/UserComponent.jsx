@@ -8,13 +8,14 @@ class UserComponent extends React.Component {
     }
 
     handleCloseConveration() {
+        console.log("attempting to close");
         this.props.closeConversation();
     }
 
     render() {
         var user = this.props.user;
         return (
-            <div id="userArea" className="well" onClick={this.props.handleCloseConveration}>
+            <div id="userArea" className="well" onClick={this.handleCloseConveration}>
                 <span className="userTab"><h4>{user._id}</h4><img className="avatarImg"
                     src={user.avatarUrl}></img>
                 </span>
