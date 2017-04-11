@@ -60,8 +60,12 @@ export function createNewConversation(otherParticipants, text) {
                 return;
             }
             dispatch({type: "CREATED_NEW_CONVERSATION", payload: newChatResponse.data});
+            dispatch({type: "STOP_NEW_GROUP"});
             dispatch({type: "RECEIVED_CURRENT_CONVERSATION", payload: newChatResponse.data});
-            dispatch(sendMessage(newChatResponse.data._id, text));
+            text = (typeof text === 'undefined') ? null : text;
+            if(text) {
+                dispatch(sendMessage(newChatResponse.data._id, text));
+            }
         })
         // Will have to catch the code in case that chat somehow already existed in which case don't
         // make a new chat between the same two participants and don't make current convo equal it

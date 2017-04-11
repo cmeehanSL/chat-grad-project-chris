@@ -110,13 +110,13 @@ module.exports = function(port, db, githubAuthoriser, middleware) {
             }
             else {
                 // console.log("convo doesn't exist yet");
-                createNewConversation(newChat, res);
+                createNewConversation(newChat, req, res);
             }
         })
 
     });
 
-    function createNewConversation(newChat, res) {
+    function createNewConversation(newChat, req, res) {
         // Add it to the database of chats
         conversations.insertOne(newChat)
         .then(function(doc) {
@@ -124,7 +124,12 @@ module.exports = function(port, db, githubAuthoriser, middleware) {
             var newUserChat = {
                 chatId: newChat._id,
                 participants: newChat.participants,
-                mostRecentMessage: null,
+                mostRecentMessage: {
+                    sender: req.session.user,
+                    content: "Group Created",
+                    timestamp: new Date(),
+                    chatId: newChat._id
+                },
                 unseenCount: 0
             }
             userChats.updateMany(
@@ -135,7 +140,7 @@ module.exports = function(port, db, githubAuthoriser, middleware) {
                 if (result) {
                     res.status(201);
                     res.json(newChat);
-                    notifyOfNewConversation(newChat);
+                    notifyOfNewConversation(newChat, req);
                 }
                 else {
                     res.sendStatus(500);
@@ -147,10 +152,13 @@ module.exports = function(port, db, githubAuthoriser, middleware) {
         });
     }
 
-    function notifyOfNewConversation(newChat) {
+    function notifyOfNewConversation(newChat, req) {
         var participants = newChat.participants;
 
         participants.forEach(function(userId) {
+            if(userId === req.session.user) {
+                return;
+            }
             var userSocket = userSockets[userId];
             console.log("the socket to send to is " + userSocket);
             if(userSocket) {

@@ -25,8 +25,8 @@ export default class NewGroupComponent extends React.Component {
     }
 
     handleCreateGroup() {
-        if (this.props.creatingGroup && this.props.newGroupMembers > 0) {
-            this.props.groupActions.createGroup();
+        if (this.props.creatingGroup && this.props.newGroupMembers.length > 0) {
+            this.props.actions.createNewConversation(this.props.newGroupMembers);
         }
     }
 

@@ -14,7 +14,8 @@ export default function reducer(
         case "STOP_NEW_GROUP": {
             return {
                 ...state,
-                creatingGroup: false
+                creatingGroup: false,
+                newGroupMembers: []
             }
         }
         case "ADDING_NEW_MEMBER": {
@@ -28,7 +29,7 @@ export default function reducer(
         case "REMOVING_NEW_MEMBER": {
             var memberToRemove = action.payload;
             var newGroupMembers = [];
-            newGroupMembers.forEach(function(member) {
+            state.newGroupMembers.forEach(function(member) {
                 if (member.id != memberToRemove.id) {
                     newGroupMembers.push(member);
                 }

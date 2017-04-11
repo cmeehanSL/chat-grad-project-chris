@@ -11,8 +11,21 @@ export function cancelGroupCreation() {
     }
 }
 
-export function createGroup() {
+export function createGroup(newGroupMembers) {
     return function(dispatch) {
-        dispatch({type: "CREATE_GROUP"});
+        dispatch({type:"CREATING_GROUP"});
+        // dispatch({type: "CREATE_GROUP", payload: newGroupMembers});
+    }
+}
+
+export function selectNewMember(memberId) {
+    return function(dispatch) {
+        dispatch({type: "ADDING_NEW_MEMBER", payload: memberId});
+    }
+}
+
+export function removeNewMember(memberId) {
+    return function(dispatch) {
+        dispatch({type: "REMOVING_NEW_MEMBER", payload: memberId});
     }
 }

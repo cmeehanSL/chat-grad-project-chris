@@ -23,7 +23,9 @@ export default class FriendListComponent extends React.Component {
                     {friendsArray.map(function(friend, key) {
                         return (
                             <li key={key}>
-                                <FriendComponent creatingGroup={creatingGroup} actions={actions} friend={friend} key={key}/>
+                                <FriendComponent creatingGroup={creatingGroup} actions={actions}
+                                     groupActions={groupActions} friend={friend}
+                                     key={key} newGroupMembers={newGroupMembers} />
                             </li>
                         )
                     })}

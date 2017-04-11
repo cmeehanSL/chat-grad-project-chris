@@ -93,12 +93,17 @@ export default function reducer(
             }
         }
         case "CREATED_NEW_CONVERSATION": {
-            var chatId = action.payload._id;
-            var participants = action.payload.participants;
             var associativeConversations = JSON.parse(JSON.stringify(state.associativeConversations));
             associativeConversations[chatId] = {
-                chatId: chatId,
-                participants: participants
+                chatId: action.payload._id,
+                participants: action.payload.participants,
+                mostRecentMessage: {
+                    sender: this.props.activeUserId,
+                    content: "Group Created",
+                    timestamp: new Date(),
+                    chatId: action.payload._id
+                },
+                unseenCount: 0
             };
             // Add the new chat to the user's conversations so that chat components can be re-rendered
             // NOTE This will already be added to the User's chats on the server
