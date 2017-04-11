@@ -1,6 +1,8 @@
 import React from "react";
 import {connect} from "react-redux";
 import * as chatActionCreators from "../actions/chatActions";
+import * as groupActionCreators from "../actions/groupActions";
+
 import {bindActionCreators} from "redux";
 
 import UserComponent from "./UserComponent.jsx";
@@ -14,13 +16,16 @@ function mapStateToProps(state) {
         associativeFriendList: state.contactReducer.associativeFriendList,
         currentConversation: state.chatReducer.currentConversation,
         listingContacts: state.contactReducer.listingContacts,
-        conversations: state.chatReducer.associativeConversations
+        conversations: state.chatReducer.associativeConversations,
+        creatingGroup: state.groupReducer.creatingGroup,
+        newGroupMembers: state.groupReducer.newGroupMembers
     };
 }
 
 function mapDispatchToProps(dispatch) {
     return {
-        actions: bindActionCreators(chatActionCreators, dispatch)
+        actions: bindActionCreators(chatActionCreators, dispatch),
+        groupActions: bindActionCreators(groupActionCreators, dispatch)
     };
 }
 
@@ -37,15 +42,16 @@ export default class HomeComponent extends React.Component {
         const {
             activeUser, associativeFriendList,
             currentConversation, listingContacts,
-            actions, conversations
+            actions, groupActions, conversations, creatingGroup, newGroupMembers
         } = this.props;
         var inConversation = (this.props.currentConversation.participants.length > 0);
         return (
             <div id="mainWindow">
                 <div id="contactBar">
                     <UserComponent closeConversation={actions.closeConversation} user={activeUser} />
-                    <ListComponent activeUser={activeUser} actions={actions} friendList={associativeFriendList}
-                        listingContacts={listingContacts} conversations={conversations}/>
+                    <ListComponent activeUser={activeUser} groupActions={groupActions} actions={actions}
+                        friendList={associativeFriendList} newGroupMembers={newGroupMembers}
+                        listingContacts={listingContacts} conversations={conversations} creatingGroup={creatingGroup}/>
                 </div>
                 <div id="chatWindow">
                     {inConversation ? <ConversationComponent resetUnseenCount={actions.resetUnseenCount}

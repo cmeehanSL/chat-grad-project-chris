@@ -117,7 +117,12 @@ export default function reducer(
             var associativeConversations = JSON.parse(JSON.stringify(state.associativeConversations));
             associativeConversations[chatId] = {
                 chatId: chatId,
-                participants: participants
+                participants: participants,
+                unseenCount: 0,
+                mostRecentMessage: {
+                    content: null,
+                    timestamp: null
+                }
             };
 
             if (participants.length === 2) {

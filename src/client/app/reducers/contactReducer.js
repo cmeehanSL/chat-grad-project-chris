@@ -5,7 +5,7 @@ export default function reducer(
         // conversations: [],
         friendList: [],
         associativeFriendList: {},
-        listingContacts: true
+        listingContacts: false
         // currentConversation: {} // will be chatId and participant/s
     },
     action) {

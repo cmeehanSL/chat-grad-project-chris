@@ -42,6 +42,7 @@
       background-color: green;
   }
 
+
   .conversationTab {
       h5{
           display: inline;
@@ -49,7 +50,19 @@
       p {
           opacity: 0.5;
           font-size: 12px;
+          max-height: 50px;
+          overflow: hidden;
       }
+  }
+
+  .newGroupTab {
+      display: flex;
+      flex-flow: row;
+      justify-content: space-between;
+      .cancelGroup{
+          align-self: flex-end;
+      }
+
   }
 
   .emptyChatsTab {

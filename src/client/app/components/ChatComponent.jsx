@@ -30,11 +30,15 @@ export default class ChatComponent extends React.Component {
         var conversation = this.props.conversation;
         var mostRecentMessage = conversation.mostRecentMessage;
         var unseenCount = conversation.unseenCount;
-        var timestamp = new Date(mostRecentMessage.timestamp);
-        var timeString = (
-            ("0" + timestamp.getHours()).slice(-2)   + ":" +
-            ("0" + timestamp.getMinutes()).slice(-2)
-        );
+        var timestamp;
+        var timeString;
+        if(mostRecentMessage) {
+            timestamp = new Date(mostRecentMessage.timestamp);
+            timeString = (
+                ("0" + timestamp.getHours()).slice(-2)   + ":" +
+                ("0" + timestamp.getMinutes()).slice(-2)
+            );
+        }
         var participantIds = conversation.participants;
         return (
             <div onClick={this.handleMakeActiveChat} className="well">
@@ -47,11 +51,14 @@ export default class ChatComponent extends React.Component {
                         )
                     })}
                     {unseenCount > 0 ? <span className="badge">{unseenCount}</span> : null}
-                    <p>{timeString} &nbsp; {mostRecentMessage.content} &nbsp;
-                        {(mostRecentMessage.sender === activeUser._id) ?
-                            <span className="glyphicon glyphicon-ok"></span> :
-                                null}
-                    </p>
+                    {mostRecentMessage ?
+                        <p class="mostRecentMessage">{timeString} &nbsp;
+                            {(mostRecentMessage.sender === activeUser._id) ?
+                                <span className="glyphicon glyphicon-ok">&nbsp;</span> :
+                                    null}
+                                    {mostRecentMessage.content}
+                        </p> : null
+                    }
                 </span>
             </div>
         );

@@ -25,8 +25,11 @@ export default class ListComponent extends React.Component {
         var friendList = this.props.friendList;
         var activeUser = this.props.activeUser;
         var actions = this.props.actions;
+        var groupActions = this.props.groupActions;
+        var newGroupMembers = this.props.newGroupMembers;
         var listingContacts = this.props.listingContacts;
         var conversations = this.props.conversations;
+        var creatingGroup = this.props.creatingGroup;
         return (
             <div>
                 <ul className="nav nav-tabs" role="tablist">
@@ -37,7 +40,8 @@ export default class ListComponent extends React.Component {
                         <a onClick={this.handleDisplayContacts} href="#">Contacts</a>
                     </li>
                 </ul>
-                {listingContacts ? <FriendListComponent actions={actions} friendList={friendList} /> :
+                {listingContacts ? <FriendListComponent actions={actions} groupActions={groupActions} creatingGroup={creatingGroup}
+                    friendList={friendList} newGroupMembers={newGroupMembers} /> :
                 <ChatListComponent friendList={friendList} activeUser={activeUser}
                     conversations={conversations} actions={actions} />
                 }
