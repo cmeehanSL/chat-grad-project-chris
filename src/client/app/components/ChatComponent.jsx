@@ -20,8 +20,8 @@ export default class ChatComponent extends React.Component {
         var otherParticipantIds = conversation.participants.filter(function(participantId) {
             return (participantId !== activeUser._id);
         });
-        loadParticipantInfo(otherParticipantIds, friendList);
 
+        loadParticipantInfo(otherParticipantIds, friendList);
         fetchConversation(conversation.chatId);
     }
 
@@ -30,6 +30,7 @@ export default class ChatComponent extends React.Component {
         var conversation = this.props.conversation;
         var mostRecentMessage = conversation.mostRecentMessage;
         var unseenCount = conversation.unseenCount;
+        var friendList = this.props.friendList;
         var timestamp;
         var timeString;
         if(mostRecentMessage) {
@@ -40,13 +41,20 @@ export default class ChatComponent extends React.Component {
             );
         }
         var participantIds = conversation.participants;
+        var otherParticipantIds = participantIds.filter(function(participantId) {
+            return (participantId !== activeUser._id);
+        });
+        var otherParticipant = friendList[otherParticipantIds[0]]
+        var groupConvo = (participantIds.length > 2);
         return (
             <div onClick={this.handleMakeActiveChat} className="well">
                 <span className="conversationTab">
-                    {participantIds.map(function(id, key) {
+                    <img className="avatarImg"
+                        src={groupConvo ? "./images/group.png" : otherParticipant.avatarUrl} />
+                    {otherParticipantIds.map(function(id, key) {
                         return (
                             <span key={key}>
-                                {(id !== activeUser._id) ? <h5>{id}&nbsp;</h5> : null}
+                                <h5>{id}&nbsp;</h5>
                             </span>
                         )
                     })}

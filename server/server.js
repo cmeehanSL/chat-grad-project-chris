@@ -80,6 +80,7 @@ module.exports = function(port, db, githubAuthoriser, middleware) {
     app.post("/api/chat", function(req, res) {
         var activeUserId = req.session.user;
 
+        // TODO this could be neatened
         var otherParticipants = req.body.otherParticipants || [];
         var participants = otherParticipants.concat({id: activeUserId});
 
@@ -94,7 +95,7 @@ module.exports = function(port, db, githubAuthoriser, middleware) {
             messages: []
         };
 
-        // Check to see if such a conversation already exists
+        // Check to see if such a conversation already exists for two perople
         userChats.findOne(
             {userId: req.session.user,
                 "chats.participants": {

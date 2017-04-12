@@ -93,15 +93,17 @@ export default function reducer(
             }
         }
         case "CREATED_NEW_CONVERSATION": {
+            var chatId = action.payload._id;
+            var participants = action.payload.participants;
             var associativeConversations = JSON.parse(JSON.stringify(state.associativeConversations));
-            associativeConversations[chatId] = {
-                chatId: action.payload._id,
-                participants: action.payload.participants,
+            associativeConversations[action.payload._id] = {
+                chatId: chatId,
+                participants: participants,
                 mostRecentMessage: {
-                    sender: this.props.activeUserId,
+                    sender: state.activeUserId,
                     content: "Group Created",
                     timestamp: new Date(),
-                    chatId: action.payload._id
+                    chatId: chatId
                 },
                 unseenCount: 0
             };

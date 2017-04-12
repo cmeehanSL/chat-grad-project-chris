@@ -58,6 +58,7 @@ export default function reducer(
                     associativeFriendList: associativeFriendList,
                 }
             }
+            break;
         }
         case "RECEIVED_USERS": {
             var friendList = action.payload;

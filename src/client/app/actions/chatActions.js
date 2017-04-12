@@ -6,13 +6,13 @@ export function openConversation(participants, chatId) {
         console.log("participants are " + participants);
         var openChat = {
             participants: participants,
-            chatId: chatId
+            chatId: chatId,
         };
         dispatch({type: "OPENING_CONVERSATION", payload: openChat});
     }
 }
 
-export function fetchConversation(chatId) {
+export function fetchConversation(chatId, associativeFriendList) {
     return function(dispatch) {
         dispatch({type: "FETCHING_CONVERSATION"});
         axios.get("/api/chat/" + chatId).then(function(chatResponse) {

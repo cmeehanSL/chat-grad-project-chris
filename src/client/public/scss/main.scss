@@ -49,7 +49,7 @@
   }
 
   .conversationTab {
-      h5{
+      h5 {
           display: inline;
       }
       p {
@@ -57,6 +57,10 @@
           font-size: 12px;
           max-height: 50px;
           overflow: hidden;
+      }
+      .avatarImg {
+          width: 60px;
+          height: 60px;
       }
   }
 
@@ -132,9 +136,28 @@
     }
 }
 
+.editGroup {
+    display: inline;
+}
+
+.groupTitle {
+    padding: 0;
+    display: inline;
+}
+
+.form-control, .form-control[disabled] {
+  background-color:rgba(0,0,0, 0);
+  border-style: solid;
+  font-size: 24px;
+  border: none;
+  outline: none;
+  cursor: default;
+  -webkit-box-shadow: none;
+  box-shadow: none;
+}
 
  .chatHeader {
-    width: 30%;
+    width: 100%;
     height: 200px;
     min-height: 200px;
 }
@@ -142,12 +165,18 @@
 .friendHeaderTab {
     h3 {
         display: inline;
-        padding: 20px;
+        vertical-align: middle;
+        // padding: 20px;
+    }
+    ul {
+        // display: inline-block;
+        list-style-type: none;
     }
     .avatarImg{
         width: 150px;
         height:150px;
         vertical-align: middle;
+        float: left;
     }
 }
 

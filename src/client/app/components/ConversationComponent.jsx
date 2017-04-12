@@ -39,7 +39,7 @@ export default class ConversationComponent extends React.Component {
 
         return (
             <div id="messageArea">
-                <FriendHeadComponent friends={currentConversation.participants}/>
+                <FriendHeadComponent currentConversation={currentConversation} friends={currentConversation.participants}/>
                 <div ref="messageHistory" id="messageHistory">
                     {messages.map(function(message, key) {
                         return (
