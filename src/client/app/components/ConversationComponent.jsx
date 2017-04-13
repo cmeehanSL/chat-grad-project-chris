@@ -33,13 +33,14 @@ export default class ConversationComponent extends React.Component {
 
     render() {
         var currentConversation = this.props.currentConversation;
+        var groupActions = this.props.groupActions;
         var activeUser = this.props.activeUser;
         var friends = currentConversation.participants;
         var messages = currentConversation.messages;
 
         return (
             <div id="messageArea">
-                <FriendHeadComponent currentConversation={currentConversation} friends={currentConversation.participants}/>
+                <FriendHeadComponent groupActions={groupActions} currentConversation={currentConversation} friends={currentConversation.participants}/>
                 <div ref="messageHistory" id="messageHistory">
                     {messages.map(function(message, key) {
                         return (

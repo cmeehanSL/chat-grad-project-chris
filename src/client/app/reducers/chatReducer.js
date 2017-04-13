@@ -8,6 +8,7 @@ export default function reducer(
             messages: [],
             participants: [],
             toResetUnseenCount: false,
+            groupName: null
         }
     },
     action) {
@@ -27,7 +28,25 @@ export default function reducer(
                     ...state.currentConversation,
                     chatId: chatId,
                     participants: participants,
-                    messages: []
+                    messages: [],
+                    groupName: null
+                }
+            }
+        }
+        case "CHANGED_GROUP_NAME": {
+            var chatId = action.payload.chatId;
+            var newGroupName = action.payload.groupName;
+            var associativeConversations = JSON.parse(JSON.stringify(state.associativeConversations));
+            associativeConversations[chatId] = {
+                ...associativeConversations[chatId],
+                groupName: newGroupName
+            };
+            return {
+                ...state,
+                associativeConversations: associativeConversations,
+                currentConversation: {
+                    ...state.currentConversation,
+                    groupName: newGroupName
                 }
             }
         }
@@ -41,7 +60,7 @@ export default function reducer(
             // BUILD ASSOCIATIVE array
             conversations.forEach(function(conversation) {
                 associativeConversations[conversation.chatId] = {
-                    ...conversation
+                    ...conversation,
                 }
             });
 
@@ -66,7 +85,7 @@ export default function reducer(
                 ...state,
                 currentConversation: {
                     ...state.currentConversation,
-                    participants: otherParticipants
+                    participants: otherParticipants,
                 }
             }
         }
@@ -88,7 +107,8 @@ export default function reducer(
                 currentConversation: {
                     ...state.currentConversation,
                     chatId: returnedChat._id,
-                    messages: returnedChat.messages
+                    messages: returnedChat.messages,
+                    groupName: returnedChat.groupName
                 }
             }
         }

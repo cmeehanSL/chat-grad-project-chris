@@ -77,6 +77,7 @@ module.exports = function(port, db, githubAuthoriser, middleware) {
         }
     });
 
+
     app.post("/api/chat", function(req, res) {
         var activeUserId = req.session.user;
 
@@ -96,25 +97,26 @@ module.exports = function(port, db, githubAuthoriser, middleware) {
         };
 
         // Check to see if such a conversation already exists for two perople
-        userChats.findOne(
-            {userId: req.session.user,
-                "chats.participants": {
-                    "$size": participantIds.length,
-                    "$all": participantIds
-                }
-            }
-        ).then(function(doc) {
-            if (doc) {
-                // Such a conversation already exists
-                // console.log("such a convo already exists");
-                return res.sendStatus(202);
-            }
-            else {
-                // console.log("convo doesn't exist yet");
+        // userChats.findOne(
+        //     {userId: req.session.user,
+        //         "chats.participants": {
+        //             "$all": participantIds,
+        //             "$size": 2
+        //         }
+        //     }
+        // ).then(function(doc) {
+        //     if (doc) {
+        //         // Such a conversation already exists
+        //         console.log("such a convo already exists");
+        //         console.log(participantIds);
+        //
+        //         return res.sendStatus(202);
+        //     }
+        //     else {
+        //         // console.log("convo doesn't exist yet");
                 createNewConversation(newChat, req, res);
-            }
-        })
-
+            // }
+        // })
     });
 
     function createNewConversation(newChat, req, res) {
@@ -189,6 +191,25 @@ module.exports = function(port, db, githubAuthoriser, middleware) {
             res.status(400).send("Error locating user chat to reset");
         });
     });
+
+    app.put("/api/group/:id", function(req, res) {
+        console.log("request to change group name");
+        var targetChatId = req.params.id;
+
+        conversations.updateOne(
+            {_id: ObjectID(targetChatId)},
+            {"$set": {groupName: req.body.groupName}}
+        ).then(function(info) {
+            if (info.matchedCount === 1) {
+                console.log("responding 200 for changed name");
+                res.sendStatus(200);
+            }
+            else {
+                console.log("did not change group name");
+                res.status(400).send("Did not change group name");
+            }
+        })
+    })
 
     app.post("/api/chat/:id", function(req, res) {
         var targetChatId = req.params.id;

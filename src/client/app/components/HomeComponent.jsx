@@ -55,7 +55,7 @@ export default class HomeComponent extends React.Component {
                 </div>
                 <div id="chatWindow">
                     {inConversation ? <ConversationComponent resetUnseenCount={actions.resetUnseenCount}
-                        activeUser={activeUser} currentConversation={currentConversation}/> :
+                        activeUser={activeUser} groupActions={groupActions} currentConversation={currentConversation}/> :
                         null
                     }
                     <div id="sendArea">

@@ -2,33 +2,84 @@ import React from "react";
 import {connect} from "react-redux";
 
 
-export default class HomeComponent extends React.Component {
+export default class FriendHeadComponent extends React.Component {
 
 
     constructor(props) {
         super(props);
         this.handleClick = this.handleClick.bind(this);
         this.handleChange = this.handleChange.bind(this);
+        this.handleBlur = this.handleBlur.bind(this);
+        this.handleSubmit = this.handleSubmit.bind(this);
         this.state = {
-            newGroupName: null,
+            newGroupName: this.props.currentConversation.groupName || "Group",
             editingGroupName: false
         }
     }
 
+    componentDidUpdate() {
+        var friends = this.props.friends;
+        var groupConvo = (friends.length > 1);
+        var newGroupName = this.state.newGroupName;
+        var groupName = this.props.currentConversation.groupName;
+
+        if (!this.state.editingGroupName) {
+            // if (groupName === null && newGroupName !== "Group" && groupConvo) {
+            //     this.setState({newGroupName: "Group"});
+            // }
+            if (groupName !== null && (groupName !== newGroupName)) {
+                this.setState({newGroupName: groupName});
+            }
+        }
+
+    }
+
+
     handleClick() {
         this.setState({editingGroupName: true});
-        this.refs["title"].focus();
+        document.getElementById("groupTitle").disabled = false;
+        // this.refs["title"].focus();
+        document.getElementById("groupTitle").focus();
     }
 
     handleChange(event) {
         this.setState({newGroupName: event.target.value});
     }
 
+    handleSubmit(event) {
+        event.preventDefault();
+        this.setState({editingGroupName: true});
+        console.log("submitted name change");
+        if (this.state.newGroupName !== null && this.state.newGroupName !== "") {
+            var chatId = this.props.currentConversation.chatId;
+            var newGroupName = this.state.newGroupName;
+            this.props.groupActions.changeGroupName(chatId, newGroupName);
+            document.getElementById("groupTitle").blur();
+        }
+        else {
+            document.getElementById("groupTitle").blur();
+        }
+    }
+
+    handleBlur(event) {
+        event.target.value = this.props.currentConversation.groupName;
+        this.setState({
+            newGroupName: this.props.currentConversation.groupName || null,
+            editingGroupName: false
+        });
+    }
+
     render() {
         var friends = this.props.friends;
-        var friend = friends[0];
         var groupConvo = (friends.length > 1);
+        var friend = friends[0];
         var currentConversation = this.props.currentConversation;
+        var groupName = currentConversation.groupName;
+        if (!groupName) {
+            groupName = "Group";
+        }
+        var newGroupName = this.state.newGroupName;
+        var editing = this.state.editingGroupName;
         console.log("current friends are " + friends);
 
         // <button onClick={this.handleClick} class="editGroup btn btn-lg btn-primary"><span class="glyphicon glyphicon-edit"></span></button>
@@ -39,21 +90,21 @@ export default class HomeComponent extends React.Component {
                 {groupConvo ?
                     <span className="friendHeaderTab">
                         <img className="avatarImg" src={"./images/group.png"} />
-                        <form>
+                        <form onSubmit={this.handleSubmit} class="editGroupForm">
                             <div class="input-group">
-                                <input type="text" ref={"title"} class="form-control groupTitle" onChange={this.handleChange} value={this.state.newGroupName || "Group Includes:"}></input>
+                                <input id="groupTitle" type="text" ref={"title"} disabled={this.state.editingGroupName ? "" : "disabled"} class="form-control" onBlur={this.handleBlur} onChange={this.handleChange} value={editing ? newGroupName : groupName}></input>
                             </div>
-
                         </form>
-                            <ul>
-                                {friends.map(function(currentFriend, key) {
-                                    return (
-                                        <li key={key}>
-                                            {currentFriend.id}
-                                        </li>
-                                    )
-                                })}
-                            </ul>
+                        <button onClick={this.handleClick} class="btn btn-primary"><span class="glyphicon glyphicon-edit"></span>Edit Group Title</button>
+                        <ul>
+                            {friends.map(function(currentFriend, key) {
+                                return (
+                                    <li key={key}>
+                                        {currentFriend.id}
+                                    </li>
+                                )
+                            })}
+                        </ul>
                     </span>
                     :
                     <span className="friendHeaderTab">
