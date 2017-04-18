@@ -30,7 +30,7 @@ export default function reducer(
             var memberToRemove = action.payload;
             var newGroupMembers = [];
             state.newGroupMembers.forEach(function(member) {
-                if (member.id != memberToRemove.id) {
+                if (member.id !== memberToRemove.id) {
                     newGroupMembers.push(member);
                 }
             });

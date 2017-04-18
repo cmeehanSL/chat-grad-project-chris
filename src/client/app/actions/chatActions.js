@@ -19,7 +19,7 @@ export function fetchConversation(chatId, associativeFriendList) {
             console.log("received the conversation that has id of " + chatResponse.data._id);
             dispatch({type: "RECEIVED_CURRENT_CONVERSATION", payload: chatResponse.data});
             dispatch(resetUnseenCount(chatResponse.data._id));
-            dispatch({type:"UNSEEN_COUNT_RESET_CLIENT", payload: chatId});
+            dispatch({type: "UNSEEN_COUNT_RESET_CLIENT", payload: chatId});
         })
         .catch()
     }
@@ -62,8 +62,8 @@ export function createNewConversation(otherParticipants, text) {
             dispatch({type: "CREATED_NEW_CONVERSATION", payload: newChatResponse.data});
             dispatch({type: "STOP_NEW_GROUP"});
             dispatch({type: "RECEIVED_CURRENT_CONVERSATION", payload: newChatResponse.data});
-            text = (typeof text === 'undefined') ? null : text;
-            if(text) {
+            text = (typeof text === "undefined") ? null : text;
+            if (text) {
                 dispatch(sendMessage(newChatResponse.data._id, text));
             }
         })

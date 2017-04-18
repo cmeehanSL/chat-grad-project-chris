@@ -5,9 +5,6 @@ import NewGroupComponent from "./NewGroupComponent.jsx";
 
 export default class FriendListComponent extends React.Component {
 
-
-
-
     render() {
         var friends = this.props.friendList;
         var friendsArray = Object.keys(friends).map(function(val) {return friends[val]});
@@ -24,13 +21,13 @@ export default class FriendListComponent extends React.Component {
                         return (
                             <li key={key}>
                                 <FriendComponent creatingGroup={creatingGroup} actions={actions}
-                                     groupActions={groupActions} friend={friend}
-                                     key={key} newGroupMembers={newGroupMembers} />
+                                    groupActions={groupActions} friend={friend}
+                                    key={key} newGroupMembers={newGroupMembers} />
                             </li>
                         )
                     })}
                 </ul>
             </div>
-        );
+        )
     }
 }

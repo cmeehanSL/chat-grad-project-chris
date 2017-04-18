@@ -114,7 +114,7 @@ module.exports = function(port, db, githubAuthoriser, middleware) {
         //     }
         //     else {
         //         // console.log("convo doesn't exist yet");
-                createNewConversation(newChat, req, res);
+        createNewConversation(newChat, req, res);
             // }
         // })
     });
@@ -159,12 +159,12 @@ module.exports = function(port, db, githubAuthoriser, middleware) {
         var participants = newChat.participants;
 
         participants.forEach(function(userId) {
-            if(userId === req.session.user) {
+            if (userId === req.session.user) {
                 return;
             }
             var userSocket = userSockets[userId];
             console.log("the socket to send to is " + userSocket);
-            if(userSocket) {
+            if (userSocket) {
                 console.log("attempting to send to the socket of user " + userId);
                 userSocket.send(JSON.stringify({
                     type: "RECEIVED_NEW_CONVERSATION",
@@ -290,7 +290,7 @@ module.exports = function(port, db, githubAuthoriser, middleware) {
     function notifyParticipant(userId, newMessage) {
         var userSocket = userSockets[userId];
         console.log("the socket to send to is " + userSocket);
-        if(userSocket) {
+        if (userSocket) {
             console.log("attempting to send to the socket of user " + userId);
             userSocket.send(JSON.stringify({
                 type: "RECEIVED_MESSAGE",
@@ -365,44 +365,42 @@ module.exports = function(port, db, githubAuthoriser, middleware) {
         });
     });
 
-    app.use(function(req, res) {
-        res.send({msg: "hello"});
-    });
-
     const server = http.createServer(app);
     const wss = new WebSocket.Server({server});
 
-
-    // console.log("wss is " + util.inspect(wss, false, null));
-
-    wss.on('connection', function connection(ws) {
+    wss.on("connection", function connection(ws) {
+        var userId = null;
         console.log("connected to socket");
         const location = url.parse(ws.upgradeReq.url, true);
 
         var receivedCookies = ws.upgradeReq.headers.cookie;
+        if(!receivedCookies) {
+            ws.send("no session token, closing");
+            ws.close();
+            return;
+        }
+
         var parsedCookies = cookie.parse(receivedCookies);
         console.log("session token is " + parsedCookies.sessionToken);
-        var userId = sessions[parsedCookies.sessionToken].user;
-
+        if(!sessions[parsedCookies.sessionToken]) {
+            ws.send("no user for that session token, closing");
+            ws.close();
+            return;
+        }
+        userId = sessions[parsedCookies.sessionToken].user;
         userSockets[userId] = ws;
-        // ws.send("something");
+        ws.send("socket initialised for " + userId);
 
-        console.log(Object.keys(userSockets));
-
-        ws.on('message', function incoming(message) {
-            console.log("received: %s", message);
-            // for(var key in userSockets) {
-            //     userSockets[key].send("meeee");
-            // }
-        });
-
-        ws.on('close', function close() {
-            userSockets[userId] = null;
+        ws.on("close", function close() {
+            if (userId){
+                userSockets[userId] = null;
+            }
             console.log("socket connection closed");
         });
 
-    })
+        console.log(Object.keys(userSockets));
 
+    })
 
     return server.listen(port);
 };

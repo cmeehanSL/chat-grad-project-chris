@@ -8,7 +8,7 @@
     "start": "npm run build && node server.js",
     "build": "webpack --config ./webpack.deployment.config.js --progress --colors",
     "purge": "rm -r src/client/public/build",
-    "dev-start": "set NODE_ENV=dev&& node server.js",
+    "dev-start": "set NODE_ENV=dev && node server.js",
     "prod-start": "set NODE_ENV=production&& npm run start",
     "test": "grunt test"
   },
