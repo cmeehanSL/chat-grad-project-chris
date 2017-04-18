@@ -8,6 +8,8 @@ sinonPromise(sinon);
 var testPort = 52684;
 var baseUrl = "http://localhost:" + testPort;
 var oauthClientId = "1234clientId";
+const WebSocket = require("ws");
+
 
 var testUser = {
     _id: "bob",
@@ -486,15 +488,15 @@ describe("server", function() {
         //     body: postData,
         //     json: true,
         // };
-        it("returns a 202 if such a conversation already exists", function(done) {
-            dbCollections.userChats.findOne = sinon.promise().resolves("found a convo");
-            authenticateUser(testGithubUser, testToken, function() {
-                request({url: requestUrl, jar: cookieJar, method: "post"}, function(error, response) {
-                    assert.equal(response.statusCode, 202);
-                    done();
-                });
-            });
-        });
+        // it("returns a 202 if such a conversation already exists", function(done) {
+        //     dbCollections.userChats.findOne = sinon.promise().resolves("found a convo");
+        //     authenticateUser(testGithubUser, testToken, function() {
+        //         request({url: requestUrl, jar: cookieJar, method: "post"}, function(error, response) {
+        //             assert.equal(response.statusCode, 202);
+        //             done();
+        //         });
+        //     });
+        // });
         it("inserts a conversation if one not already existing", function(done) {
             dbCollections.conversations.insertOne = sinon.promise().resolves("inserted info");
             dbCollections.userChats.findOne = sinon.promise().resolves(false);
@@ -579,6 +581,56 @@ describe("server", function() {
             authenticateUser(testGithubUser, testToken, function() {
                 request({url: requestUrl, jar: cookieJar, method: "put"}, function(error, response) {
                     assert.equal(response.statusCode, 200);
+                    done();
+                });
+            });
+        });
+    });
+    describe("Websockets Test", function() {
+        var rawSocket1;
+        var rawSocket2;
+        var requestUrl = baseUrl;
+        var socketUrl = baseUrl.replace("http", "ws");
+
+        it("no cookie doesn't create socket", function(done) {
+            rawSocket1 = new WebSocket(socketUrl);
+
+            rawSocket1.on("message", function(message) {
+                assert.equal(message, "no session token, closing");
+            });
+
+            rawSocket1.on("close", function() {
+                rawSocket1.close();
+                done();
+            });
+        });
+        it("authenticated user stores socket", function(done) {
+            authenticateUser(testGithubUser, testToken, function() {
+                rawSocket1 = new WebSocket(socketUrl, {
+                    headers: {"Cookie": "sessionToken=" + testToken}
+                });
+                rawSocket1.on("message", function(message) {
+                    assert.equal(message, "socket initialised for bob");
+                    rawSocket1.close();
+                });
+
+                rawSocket1.on("close", function() {
+                    done();
+                });
+            });
+        });
+        it("unauthenticated user doesn't create socket", function(done) {
+            authenticateUser(testGithubUser, testToken, function() {
+                rawSocket1 = new WebSocket(socketUrl, {
+                    headers: {"Cookie": "sessionToken=" + testExpiredToken}
+                });
+                rawSocket1.on("message", function(message) {
+                    console.log("received message socket 2:" + message);
+                    assert.equal(message, "no user for that session token, closing");
+                    rawSocket1.close();
+                });
+
+                rawSocket1.on("close", function() {
                     done();
                 });
             });

@@ -39,10 +39,23 @@ export default class NewGroupComponent extends React.Component {
         return (
             <div className="well">
                 <span className="newGroupTab">
-                    {newGroupMembers.length > 0 ? <button onClick={this.handleCreateGroup} className="createGroup btn btn-success">Confirm New Group</button> :
-                        <button onClick={this.handleStartNewGroup} className={!creatingGroup ? "createGroup btn btn-primary" : "disabled createGroup btn btn-primary"}>Create New Group</button>
+                    {newGroupMembers.length > 0 ?
+                        <button onClick={this.handleCreateGroup} className="createGroup btn btn-success">
+                            Confirm New Group
+                        </button> :
+                        <button onClick={this.handleStartNewGroup}
+                            className={!creatingGroup ? "createGroup btn btn-primary" :
+                                "disabled createGroup btn btn-primary"}>
+                            Create New Group
+                        </button>
                     }
-                    {creatingGroup ? <button onClick={this.handleCancelNewGroup} className={creatingGroup ? "cancelGroup btn btn-danger" : "disabled cancelGroup btn btn-danger"}>Cancel New Group</button> : null}
+                    {creatingGroup ?
+                        <button onClick={this.handleCancelNewGroup}
+                            className={creatingGroup ? "cancelGroup btn btn-danger" :
+                                "disabled cancelGroup btn btn-danger"}>
+                            Cancel New Group
+                        </button> :
+                    null}
                 </span>
             </div>
         );

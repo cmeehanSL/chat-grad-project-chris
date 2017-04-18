@@ -82,7 +82,9 @@ export default class FriendHeadComponent extends React.Component {
         var editing = this.state.editingGroupName;
         console.log("current friends are " + friends);
 
-        // <button onClick={this.handleClick} class="editGroup btn btn-lg btn-primary"><span class="glyphicon glyphicon-edit"></span></button>
+        // <button onClick={this.handleClick} class="editGroup btn btn-lg btn-primary">
+            // <span class="glyphicon glyphicon-edit"></span>
+        // </button>
 
         return (
             <div className="well chatHeader">
@@ -90,12 +92,17 @@ export default class FriendHeadComponent extends React.Component {
                 {groupConvo ?
                     <span className="friendHeaderTab">
                         <img className="avatarImg" src={"./images/group.png"} />
-                        <form onSubmit={this.handleSubmit} class="editGroupForm">
-                            <div class="input-group">
-                                <input id="groupTitle" type="text" ref={"title"} disabled={this.state.editingGroupName ? "" : "disabled"} class="form-control" onBlur={this.handleBlur} onChange={this.handleChange} value={editing ? newGroupName : groupName}></input>
+                        <form onSubmit={this.handleSubmit} className="editGroupForm">
+                            <div className="input-group">
+                                <input id="groupTitle" type="text" ref={"title"}
+                                    disabled={this.state.editingGroupName ? "" : "disabled"}
+                                    className="form-control" onBlur={this.handleBlur} onChange={this.handleChange}
+                                    value={editing ? newGroupName : groupName}></input>
                             </div>
                         </form>
-                        <button onClick={this.handleClick} class="btn btn-primary"><span class="glyphicon glyphicon-edit"></span>Edit Group Title</button>
+                        <button onClick={this.handleClick} className="btn btn-primary">
+                            <span className="glyphicon glyphicon-edit"></span>Edit Group Title
+                        </button>
                         <ul>
                             {friends.map(function(currentFriend, key) {
                                 return (
@@ -105,8 +112,7 @@ export default class FriendHeadComponent extends React.Component {
                                 )
                             })}
                         </ul>
-                    </span>
-                    :
+                    </span> :
                     <span className="friendHeaderTab">
                         <img className="avatarImg" src={friend.avatarUrl} />
                         <h3>{friend.id}</h3>

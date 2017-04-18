@@ -76,7 +76,8 @@ export default class FriendComponent extends React.Component {
             <div onClick={this.handleClick} className="well">
                 <span className="friendTab"><img className="avatarImg"
                     src={friend.avatarUrl} /><h5>{friend.id}</h5>
-                {(creatingGroup && this.state.selected) ? <span class="selectedMarker glyphicon glyphicon-ok-circle"></span> : null}
+                {(creatingGroup && this.state.selected) ?
+                    <span className="selectedMarker glyphicon glyphicon-ok-circle"></span> : null}
                 </span>
             </div>
         );

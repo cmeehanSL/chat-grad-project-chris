@@ -14,7 +14,7 @@ export function cancelGroupCreation() {
 
 export function createGroup(newGroupMembers) {
     return function(dispatch) {
-        dispatch({type:"CREATING_GROUP"});
+        dispatch({type: "CREATING_GROUP"});
         // dispatch({type: "CREATE_GROUP", payload: newGroupMembers});
     }
 }
@@ -37,7 +37,7 @@ export function changeGroupName(chatId, newGroupName) {
 
         axios.put("/api/group/" + chatId, {groupName: newGroupName})
         .then(function(groupResponse) {
-            if(groupResponse.status === 200) {
+            if (groupResponse.status === 200) {
                 var changedGroup = {
                     chatId: chatId,
                     groupName: newGroupName

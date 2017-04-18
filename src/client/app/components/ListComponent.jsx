@@ -40,8 +40,9 @@ export default class ListComponent extends React.Component {
                         <a onClick={this.handleDisplayContacts} href="#">Contacts</a>
                     </li>
                 </ul>
-                {listingContacts ? <FriendListComponent actions={actions} groupActions={groupActions} creatingGroup={creatingGroup}
-                    friendList={friendList} newGroupMembers={newGroupMembers} /> :
+                {listingContacts ? <FriendListComponent actions={actions} groupActions={groupActions}
+                    creatingGroup={creatingGroup} friendList={friendList}
+                    newGroupMembers={newGroupMembers} /> :
                 <ChatListComponent friendList={friendList} activeUser={activeUser}
                     conversations={conversations} actions={actions} />
                 }

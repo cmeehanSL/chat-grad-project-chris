@@ -154,7 +154,7 @@ export default function reducer(
 
             if (participants.length === 2) {
                 console.log("participants length is 2");
-                if(currentConversation.chatId == null && currentConversation.participants.length == 1) {
+                if (currentConversation.chatId === null && currentConversation.participants.length === 1) {
                     console.log("the current conversation should be this one so refreshing");
                     var friendId = (participants[0] !== userId) ? participants[0] : participants[1];
                     if (friendId === currentConversation.participants[0].id) {
@@ -215,7 +215,7 @@ export default function reducer(
             var associativeConversations = JSON.parse(JSON.stringify(state.associativeConversations));
             associativeConversations[newMessage.chatId].mostRecentMessage = newMessage;
 
-            if (newMessage.chatId == state.currentConversation.chatId) {
+            if (newMessage.chatId === state.currentConversation.chatId) {
                 newMessageList = oldMessageList.concat(newMessage);
                 return {
                     ...state,

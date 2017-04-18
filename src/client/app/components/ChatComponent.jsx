@@ -33,7 +33,7 @@ export default class ChatComponent extends React.Component {
         var friendList = this.props.friendList;
         var timestamp;
         var timeString;
-        if(mostRecentMessage) {
+        if (mostRecentMessage) {
             timestamp = new Date(mostRecentMessage.timestamp);
             timeString = (
                 ("0" + timestamp.getHours()).slice(-2)   + ":" +
@@ -60,7 +60,7 @@ export default class ChatComponent extends React.Component {
                     })}
                     {unseenCount > 0 ? <span className="badge">{unseenCount}</span> : null}
                     {mostRecentMessage ?
-                        <p class="mostRecentMessage">{timeString} &nbsp;
+                        <p className="mostRecentMessage">{timeString} &nbsp;
                             {(mostRecentMessage.sender === activeUser._id) ?
                                 <span className="glyphicon glyphicon-ok">&nbsp;</span> :
                                     null}
