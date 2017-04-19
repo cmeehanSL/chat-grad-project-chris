@@ -146,14 +146,21 @@ export function initialiseSocket() {
 
 export function handleSocketMessage(message) {
     return function(dispatch) {
-        console.log("")
+        console.log(message);
+        // var messageObj = JSON.parse(JSON.stringify(message));
+        // console.log(messageObj);
         var data = JSON.parse(message.data);
+        console.log("data is ");
+        console.log(data);
+        // console.log(JSON.parse(data));
+        console.log("data type is " + data["type"]);
         switch (data.type) {
             case "LOGGED_IN": {
                 break;
             }
             case "RECEIVED_MESSAGE": {
                 // dispatch(getUserChats());
+                console.log("received message so should dispatch action");
                 dispatch({type: "RECEIVED_MESSAGE", payload: data.content});
                 break;
             }

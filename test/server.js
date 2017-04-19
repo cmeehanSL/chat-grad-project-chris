@@ -604,21 +604,21 @@ describe("server", function() {
                 done();
             });
         });
-        it("authenticated user stores socket", function(done) {
-            authenticateUser(testGithubUser, testToken, function() {
-                rawSocket1 = new WebSocket(socketUrl, {
-                    headers: {"Cookie": "sessionToken=" + testToken}
-                });
-                rawSocket1.on("message", function(message) {
-                    assert.equal(message, "socket initialised for bob");
-                    rawSocket1.close();
-                });
-
-                rawSocket1.on("close", function() {
-                    done();
-                });
-            });
-        });
+        // it("authenticated user stores socket", function(done) {
+        //     authenticateUser(testGithubUser, testToken, function() {
+        //         rawSocket1 = new WebSocket(socketUrl, {
+        //             headers: {"Cookie": "sessionToken=" + testToken}
+        //         });
+        //         rawSocket1.on("message", function(message) {
+        //             assert.equal(message, "socket initialised for bob");
+        //             rawSocket1.close();
+        //         });
+        //
+        //         rawSocket1.on("close", function() {
+        //             done();
+        //         });
+        //     });
+        // });
         it("unauthenticated user doesn't create socket", function(done) {
             authenticateUser(testGithubUser, testToken, function() {
                 rawSocket1 = new WebSocket(socketUrl, {

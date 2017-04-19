@@ -389,7 +389,7 @@ module.exports = function(port, db, githubAuthoriser, middleware) {
         }
         userId = sessions[parsedCookies.sessionToken].user;
         userSockets[userId] = ws;
-        ws.send("socket initialised for " + userId);
+        // ws.send("socket initialised for " + userId);
 
         ws.on("close", function close() {
             if (userId){
